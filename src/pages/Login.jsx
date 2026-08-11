@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import GoogleSignIn from '../components/GoogleSignIn'
 
 export default function Login() {
   const { login } = useAuth()
@@ -70,6 +71,16 @@ export default function Login() {
         <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
+
+        <p className="auth-forgot">
+          <Link to="/forgot-password">Forgot password?</Link>
+        </p>
+
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
+
+        <GoogleSignIn text="continue_with" />
 
         <p className="auth-switch">
           Don&apos;t have an account? <Link to="/signup">Sign up</Link>

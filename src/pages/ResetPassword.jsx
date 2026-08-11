@@ -1,18 +1,13 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/useAuth'
-import GoogleSignIn from '../components/GoogleSignIn'
+import { Link, useSearchParams } from 'react-router-dom'
+import { resetPassword } from '../api/auth'
 
-export default function Signup() {
-  const { register } = useAuth()
-  const navigate = useNavigate()
+export default function ResetPassword() {
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get('token') || ''
 
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  })
+  const [form, setForm] = useState({ password: '', confirmPassword: '' })
+  const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -23,6 +18,12 @@ export default function Signup() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
+    setMessage('')
+
+    if (!token) {
+      setError('Invalid or missing reset token')
+      return
+    }
 
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match')
@@ -32,11 +33,13 @@ export default function Signup() {
     setLoading(true)
 
     try {
-      await register(form.name, form.email, form.password)
-      navigate('/login')
+      await resetPassword(token, form.password)
+      setMessage('Your password has been reset. You can now log in.')
+      setForm({ password: '', confirmPassword: '' })
     } catch (err) {
       setError(
-        err.response?.data?.message || 'Sign up failed. Please try again.',
+        err.response?.data?.message ||
+          'Reset failed. Please try again.',
       )
     } finally {
       setLoading(false)
@@ -46,41 +49,16 @@ export default function Signup() {
   return (
     <div className="auth-container">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1 className="auth-title">Create account</h1>
-        <p className="auth-subtitle">Join Hackathon 2026</p>
+        <h1 className="auth-title">Set a new password</h1>
+        <p className="auth-subtitle">
+          Choose a strong password for your account
+        </p>
 
         {error && <div className="auth-error">{error}</div>}
-
-        <label className="form-label" htmlFor="name">
-          Name
-        </label>
-        <input
-          id="name"
-          type="text"
-          name="name"
-          className="form-input"
-          placeholder="Your name"
-          value={form.name}
-          onChange={handleChange}
-          required
-        />
-
-        <label className="form-label" htmlFor="email">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          name="email"
-          className="form-input"
-          placeholder="you@example.com"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
+        {message && <div className="auth-success">{message}</div>}
 
         <label className="form-label" htmlFor="password">
-          Password
+          New password
         </label>
         <input
           id="password"
@@ -98,31 +76,25 @@ export default function Signup() {
         </p>
 
         <label className="form-label" htmlFor="confirmPassword">
-          Confirm password
+          Confirm new password
         </label>
         <input
           id="confirmPassword"
           type="password"
           name="confirmPassword"
           className="form-input"
-          placeholder="Repeat your password"
+          placeholder="Repeat your new password"
           value={form.confirmPassword}
           onChange={handleChange}
           required
         />
 
         <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-          {loading ? 'Creating account...' : 'Sign Up'}
+          {loading ? 'Resetting...' : 'Reset password'}
         </button>
 
-        <div className="auth-divider">
-          <span>or</span>
-        </div>
-
-        <GoogleSignIn text="signup_with" />
-
         <p className="auth-switch">
-          Already have an account? <Link to="/login">Login</Link>
+          <Link to="/login">Back to login</Link>
         </p>
       </form>
     </div>

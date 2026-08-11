@@ -155,6 +155,69 @@
   text-align: left;
 }
 
+.auth-success {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+  border: 1px solid rgba(22, 163, 74, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  font-size: 15px;
+  text-align: left;
+}
+
+.auth-forgot {
+  margin: 12px 0 0;
+  text-align: right;
+  font-size: 14px;
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--text);
+  font-size: 14px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+}
+
+.google-signin {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.google-signin-button {
+  display: flex;
+  justify-content: center;
+}
+
+.google-signin-loading {
+  padding: 14px;
+  text-align: center;
+  color: var(--text);
+  font-size: 15px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
 .form-label {
   font-size: 14px;
   font-weight: 600;
