@@ -62,6 +62,7 @@ api.interceptors.response.use(
         } catch (refreshError) {
           localStorage.removeItem(TOKEN_KEYS.access)
           localStorage.removeItem(TOKEN_KEYS.refresh)
+          localStorage.removeItem('hackathon_user')
           window.location.href = '/login'
           return Promise.reject(refreshError)
         }
