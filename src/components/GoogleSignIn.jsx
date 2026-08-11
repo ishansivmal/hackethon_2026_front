@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { useAuth } from '../context/useAuth'
 import { loadGoogleScript } from '../utils/google'
 
@@ -8,7 +9,6 @@ export default function GoogleSignIn({ text = 'continue_with' }) {
   const navigate = useNavigate()
   const buttonRef = useRef(null)
   const textRef = useRef(text)
-  const [error, setError] = useState('')
   const [processing, setProcessing] = useState(false)
 
   textRef.current = text
@@ -19,13 +19,13 @@ export default function GoogleSignIn({ text = 'continue_with' }) {
     if (!response?.credential) return
 
     setProcessing(true)
-    setError('')
 
     try {
       await googleLogin(response.credential)
+      toast.success('Signed in with Google!')
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Google sign-in failed')
+      toast.error(err.response?.data?.message || 'Google sign-in failed')
       setProcessing(false)
     }
   }
@@ -33,7 +33,7 @@ export default function GoogleSignIn({ text = 'continue_with' }) {
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
     if (!clientId) {
-      setError('Google Client ID is not configured')
+      toast.error('Google Sign-In is not configured')
       return
     }
 
@@ -57,7 +57,7 @@ export default function GoogleSignIn({ text = 'continue_with' }) {
         })
       })
       .catch(() => {
-        if (!canceled) setError('Unable to load Google Sign-In')
+        if (!canceled) toast.error('Unable to load Google Sign-In')
       })
 
     return () => {
@@ -72,7 +72,6 @@ export default function GoogleSignIn({ text = 'continue_with' }) {
       ) : (
         <div ref={buttonRef} className="google-signin-button" />
       )}
-      {error && <div className="auth-error">{error}</div>}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 import { deleteUser, getUsers, updateUserRole } from '../api/admin'
 import { useAuth } from '../context/useAuth'
@@ -18,7 +19,9 @@ export default function AdminDashboard() {
       const response = await getUsers()
       setUsers(response.data.users)
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load users')
+      const msg = err.response?.data?.message || 'Failed to load users'
+      setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
@@ -63,6 +66,7 @@ export default function AdminDashboard() {
       )
       setPendingRoles((prev) => ({ ...prev, [id]: undefined }))
       setMessage(`Role updated for ${response.data.user.email}`)
+      toast.success(`Role updated for ${response.data.user.email}`)
 
       Swal.fire({
         title: 'Role updated!',
@@ -72,11 +76,13 @@ export default function AdminDashboard() {
       })
     } catch (err) {
       setPendingRoles((prev) => ({ ...prev, [id]: undefined }))
-      setError(err.response?.data?.message || 'Failed to update role')
+      const msg = err.response?.data?.message || 'Failed to update role'
+      setError(msg)
+      toast.error(msg)
 
       Swal.fire({
         title: 'Error',
-        text: err.response?.data?.message || 'Failed to update role',
+        text: msg,
         icon: 'error',
         confirmButtonColor: '#aa3bff',
       })
@@ -104,6 +110,7 @@ export default function AdminDashboard() {
       await deleteUser(user.id)
       setUsers((prev) => prev.filter((item) => item.id !== user.id))
       setMessage(`User "${user.email}" deleted`)
+      toast.success(`User "${user.email}" deleted`)
 
       Swal.fire({
         title: 'Deleted!',
@@ -112,11 +119,13 @@ export default function AdminDashboard() {
         confirmButtonColor: '#aa3bff',
       })
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete user')
+      const msg = err.response?.data?.message || 'Failed to delete user'
+      setError(msg)
+      toast.error(msg)
 
       Swal.fire({
         title: 'Error',
-        text: err.response?.data?.message || 'Failed to delete user',
+        text: msg,
         icon: 'error',
         confirmButtonColor: '#aa3bff',
       })

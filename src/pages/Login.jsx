@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { useAuth } from '../context/useAuth'
 import GoogleSignIn from '../components/GoogleSignIn'
 
@@ -8,7 +9,6 @@ export default function Login() {
   const navigate = useNavigate()
 
   const [form, setForm] = useState({ email: '', password: '' })
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleChange = (event) => {
@@ -17,16 +17,14 @@ export default function Login() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setError('')
     setLoading(true)
 
     try {
       await login(form.email, form.password)
+      toast.success('Logged in successfully!')
       navigate('/dashboard')
     } catch (err) {
-      setError(
-        err.response?.data?.message || 'Login failed. Please try again.',
-      )
+      toast.error(err.response?.data?.message || 'Login failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -38,7 +36,6 @@ export default function Login() {
         <h1 className="auth-title">Welcome back</h1>
         <p className="auth-subtitle">Log in to your account</p>
 
-        {error && <div className="auth-error">{error}</div>}
 
         <label className="form-label" htmlFor="email">
           Email
