@@ -1,0 +1,123 @@
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/useAuth'
+
+export default function Signup() {
+  const { register } = useAuth()
+  const navigate = useNavigate()
+
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleChange = (event) => {
+    setForm({ ...form, [event.target.name]: event.target.value })
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setError('')
+
+    if (form.password !== form.confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      await register(form.name, form.email, form.password)
+      navigate('/login')
+    } catch (err) {
+      setError(
+        err.response?.data?.message || 'Sign up failed. Please try again.',
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="auth-container">
+      <form className="auth-card" onSubmit={handleSubmit}>
+        <h1 className="auth-title">Create account</h1>
+        <p className="auth-subtitle">Join Hackathon 2026</p>
+
+        {error && <div className="auth-error">{error}</div>}
+
+        <label className="form-label" htmlFor="name">
+          Name
+        </label>
+        <input
+          id="name"
+          type="text"
+          name="name"
+          className="form-input"
+          placeholder="Your name"
+          value={form.name}
+          onChange={handleChange}
+          required
+        />
+
+        <label className="form-label" htmlFor="email">
+          Email
+        </label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          className="form-input"
+          placeholder="you@example.com"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
+
+        <label className="form-label" htmlFor="password">
+          Password
+        </label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          className="form-input"
+          placeholder="8+ chars, upper, lower, number & symbol"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
+        <p className="form-hint">
+          At least 8 characters with uppercase, lowercase, a number and a
+          special character
+        </p>
+
+        <label className="form-label" htmlFor="confirmPassword">
+          Confirm password
+        </label>
+        <input
+          id="confirmPassword"
+          type="password"
+          name="confirmPassword"
+          className="form-input"
+          placeholder="Repeat your password"
+          value={form.confirmPassword}
+          onChange={handleChange}
+          required
+        />
+
+        <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          {loading ? 'Creating account...' : 'Sign Up'}
+        </button>
+
+        <p className="auth-switch">
+          Already have an account? <Link to="/login">Login</Link>
+        </p>
+      </form>
+    </div>
+  )
+}
