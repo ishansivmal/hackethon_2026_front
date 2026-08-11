@@ -91,7 +91,7 @@ export default function AdminDashboard() {
                   <tr key={user.id}>
                     <td>{user.id}</td>
                     <td>{user.name}</td>
-                    <td>{user.email}</td>
+                    <td className="email-col">{user.email}</td>
                     <td>
                       <select
                         className="role-select"

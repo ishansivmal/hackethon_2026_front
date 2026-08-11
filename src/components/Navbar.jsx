@@ -1,11 +1,16 @@
+import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
+
+  const closeMenu = () => setOpen(false)
 
   const handleLogout = async () => {
+    closeMenu()
     await logout()
     navigate('/login')
   }
@@ -13,23 +18,35 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <Link to="/" className="navbar-logo">
+        <Link to="/" className="navbar-logo" onClick={closeMenu}>
           Hackathon 2026
         </Link>
       </div>
 
-      <div className="navbar-links">
-        <NavLink to="/" className="nav-link" end>
+      <button
+        type="button"
+        className={`navbar-toggle ${open ? 'open' : ''}`}
+        onClick={() => setOpen((value) => !value)}
+        aria-label="Toggle navigation"
+        aria-expanded={open}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+
+      <div className={`navbar-links ${open ? 'open' : ''}`}>
+        <NavLink to="/" className="nav-link" end onClick={closeMenu}>
           Home
         </NavLink>
 
         {user ? (
           <>
-            <NavLink to="/dashboard" className="nav-link">
+            <NavLink to="/dashboard" className="nav-link" onClick={closeMenu}>
               Dashboard
             </NavLink>
             {user.role === 'admin' && (
-              <NavLink to="/admin" className="nav-link">
+              <NavLink to="/admin" className="nav-link" onClick={closeMenu}>
                 Admin
               </NavLink>
             )}
@@ -44,10 +61,10 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <NavLink to="/login" className="nav-link">
+            <NavLink to="/login" className="nav-link" onClick={closeMenu}>
               Login
             </NavLink>
-            <Link to="/signup" className="btn btn-primary">
+            <Link to="/signup" className="btn btn-primary" onClick={closeMenu}>
               Sign Up
             </Link>
           </>
