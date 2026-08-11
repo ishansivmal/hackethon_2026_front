@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { resetPassword } from '../api/auth'
 
 export default function ResetPassword() {
@@ -7,8 +8,6 @@ export default function ResetPassword() {
   const token = searchParams.get('token') || ''
 
   const [form, setForm] = useState({ password: '', confirmPassword: '' })
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleChange = (event) => {
@@ -17,16 +16,14 @@ export default function ResetPassword() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setError('')
-    setMessage('')
 
     if (!token) {
-      setError('Invalid or missing reset token')
+      toast.error('Invalid or missing reset token')
       return
     }
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match')
+      toast.error('Passwords do not match')
       return
     }
 
@@ -34,13 +31,10 @@ export default function ResetPassword() {
 
     try {
       await resetPassword(token, form.password)
-      setMessage('Your password has been reset. You can now log in.')
+      toast.success('Password reset! You can now log in.')
       setForm({ password: '', confirmPassword: '' })
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          'Reset failed. Please try again.',
-      )
+      toast.error(err.response?.data?.message || 'Reset failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -54,8 +48,6 @@ export default function ResetPassword() {
           Choose a strong password for your account
         </p>
 
-        {error && <div className="auth-error">{error}</div>}
-        {message && <div className="auth-success">{message}</div>}
 
         <label className="form-label" htmlFor="password">
           New password

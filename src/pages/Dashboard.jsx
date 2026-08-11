@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { useAuth } from '../context/useAuth'
 import { getProfile } from '../api/auth'
 
@@ -7,6 +8,8 @@ export default function Dashboard() {
   const { user, loading } = useAuth()
   const navigate = useNavigate()
   const [profile, setProfile] = useState(null)
+
+  const welcomeShown = useRef(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -16,9 +19,15 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (user) {
+      if (!welcomeShown.current) {
+        welcomeShown.current = true
+        toast.success(`Welcome back, ${user.name}!`)
+      }
       getProfile()
         .then((response) => setProfile(response.data))
-        .catch(() => {})
+        .catch(() => {
+          toast.error('Could not fetch your profile data.')
+        })
     }
   }, [user])
 

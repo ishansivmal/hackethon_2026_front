@@ -1,4 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import Navbar from './components/Navbar'
 import AdminRoute from './components/AdminRoute'
 import Home from './pages/Home'
@@ -14,6 +16,7 @@ function App() {
   return (
     <>
       <Navbar />
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover theme="dark" />
       <main className="page">
         <Routes>
           <Route path="/" element={<Home />} />

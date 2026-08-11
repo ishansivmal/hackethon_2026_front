@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { useAuth } from '../context/useAuth'
 import GoogleSignIn from '../components/GoogleSignIn'
 
@@ -13,7 +14,6 @@ export default function Signup() {
     password: '',
     confirmPassword: '',
   })
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleChange = (event) => {
@@ -22,10 +22,9 @@ export default function Signup() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setError('')
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match')
+      toast.error('Passwords do not match')
       return
     }
 
@@ -33,11 +32,10 @@ export default function Signup() {
 
     try {
       await register(form.name, form.email, form.password)
+      toast.success('Account created! Please log in.')
       navigate('/login')
     } catch (err) {
-      setError(
-        err.response?.data?.message || 'Sign up failed. Please try again.',
-      )
+      toast.error(err.response?.data?.message || 'Sign up failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -49,7 +47,6 @@ export default function Signup() {
         <h1 className="auth-title">Create account</h1>
         <p className="auth-subtitle">Join Hackathon 2026</p>
 
-        {error && <div className="auth-error">{error}</div>}
 
         <label className="form-label" htmlFor="name">
           Name

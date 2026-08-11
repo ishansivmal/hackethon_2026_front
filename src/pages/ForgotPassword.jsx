@@ -1,30 +1,22 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { forgotPassword } from '../api/auth'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setError('')
-    setMessage('')
     setLoading(true)
 
     try {
       await forgotPassword(email)
-      setMessage(
-        'If an account exists for this email, a password reset link has been sent.',
-      )
+      toast.success('Reset link sent! Check your inbox.')
       setEmail('')
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          'Something went wrong. Please try again.',
-      )
+      toast.error(err.response?.data?.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -38,8 +30,6 @@ export default function ForgotPassword() {
           Enter your email and we&apos;ll send you a reset link
         </p>
 
-        {error && <div className="auth-error">{error}</div>}
-        {message && <div className="auth-success">{message}</div>}
 
         <label className="form-label" htmlFor="email">
           Email
