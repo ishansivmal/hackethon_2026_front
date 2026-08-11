@@ -28,6 +28,11 @@ export default function Navbar() {
             <NavLink to="/dashboard" className="nav-link">
               Dashboard
             </NavLink>
+            {user.role === 'admin' && (
+              <NavLink to="/admin" className="nav-link">
+                Admin
+              </NavLink>
+            )}
             <span className="nav-user">{user.name}</span>
             <button
               type="button"
