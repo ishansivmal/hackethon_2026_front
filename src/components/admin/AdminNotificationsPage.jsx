@@ -7,12 +7,9 @@ export default function AdminNotificationsPage({
 }) {
   return (
     <div className="tab-content">
-      <div className="content-header">
+      <div className="content-header align-center">
         <div>
           <h1>Notification Management</h1>
-          <p className="subtitle">
-            Create broadcast announcements and review notification alert history.
-          </p>
         </div>
       </div>
 
