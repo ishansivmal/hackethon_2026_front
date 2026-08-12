@@ -99,8 +99,8 @@
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: #fff;
+  background: var(--brand-dark);
+  color: var(--bg);
 
   &:hover {
     filter: brightness(1.1);
@@ -407,9 +407,9 @@
   cursor: pointer;
 
   &.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
+    background: var(--brand-dark);
+    border-color: var(--brand-dark);
+    color: var(--bg);
   }
 }
 
