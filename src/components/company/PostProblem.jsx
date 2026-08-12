@@ -1,6 +1,9 @@
 import { useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { postProblem } from '../../api/company'
+import PostedList from './PostedList'
+import EditItemModal from './EditItemModal'
+import deletePosted from '../../utils/deletePosted'
 
 const INIT = {
   description: '',
@@ -18,10 +21,15 @@ function Field({ label, hint, children }) {
   )
 }
 
-export default function PostProblem() {
+export default function PostProblem({ items = [], onPosted }) {
   const [form, setForm] = useState(INIT)
   const [submitting, setSubmitting] = useState(false)
+  const [editing, setEditing] = useState(null)
   const pdfInputRef = useRef(null)
+
+  const handleDelete = async (problem) => {
+    if (await deletePosted('problem', problem)) onPosted?.()
+  }
 
   const handle = (e) => {
     const { name, value } = e.target
@@ -45,6 +53,7 @@ export default function PostProblem() {
       await postProblem(fd)
       toast.success('Problem statement submitted successfully! 🔬')
       setForm(INIT)
+      onPosted?.()
     } catch (err) {
       const message = err.response?.data?.message || 'Failed to submit problem. Please try again.'
       toast.error(message)
@@ -135,6 +144,51 @@ export default function PostProblem() {
             : <><span>📤</span> Submit Problem</>}
         </button>
       </form>
+
+      <PostedList
+        icon="🔬"
+        title="My Submitted Problems"
+        subtitle="Only problems submitted by your account are shown here."
+        emptyText="You haven't submitted any problems yet."
+        items={items}
+        renderItem={(problem) => (
+          <article key={problem.problem_ID ?? problem.id} className="cd-posted-card">
+            <div className="cd-posted-body">
+              <h4 className="cd-posted-name">{problem.description}</h4>
+              {problem.pdf && (
+                <a className="cd-posted-link" href={problem.pdf} target="_blank" rel="noreferrer">
+                  View requirements PDF
+                </a>
+              )}
+              <span className="cd-posted-apps">📨 {problem.applications?.length ?? 0} solutions</span>
+              <div className="cd-posted-actions">
+                <button
+                  type="button"
+                  className="cd-posted-btn cd-posted-btn--edit"
+                  onClick={() => setEditing(problem)}
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  type="button"
+                  className="cd-posted-btn cd-posted-btn--delete"
+                  onClick={() => handleDelete(problem)}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          </article>
+        )}
+      />
+      {editing && (
+        <EditItemModal
+          type="problem"
+          item={editing}
+          onClose={() => setEditing(null)}
+          onSaved={onPosted}
+        />
+      )}
     </div>
   )
 }
