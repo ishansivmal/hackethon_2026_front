@@ -49,9 +49,15 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<DashboardRedirect />} />
           <Route path="/company/dashboard" element={<CompanyDashboard />} />
+<<<<<<< HEAD
           <Route path="/customerPage" element={<JobSeekerDashboard />} />
           <Route path="/admin" element={<AdminRoute />}>
             <Route index element={<AdminDashboard />} />
+=======
+          <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} />
+          <Route path="/admin/*" element={<AdminRoute />}>
+            <Route path="*" element={<AdminDashboard />} />
+>>>>>>> 7962c4251899a02fbe2e0beae9794970780df7c4
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

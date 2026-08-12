@@ -14,21 +14,21 @@ const NAV_ITEMS = [
     label: 'Post Internship',
     icon: '🎓',
     desc: 'Add an internship listing',
-    color: '#321E48',   /* brand-dark */
+    color: '#2196F3',   /* theme accent */
   },
   {
     id: 'job',
     label: 'Post Job',
     icon: '💼',
     desc: 'Publish a job opening',
-    color: '#43637E',   /* brand-mid */
+    color: '#2196F3',   /* theme accent */
   },
   {
     id: 'problem',
     label: 'Post Problem',
     icon: '🔬',
     desc: 'Submit a company challenge',
-    color: '#65DCD5',   /* brand-accent */
+    color: '#2196F3',   /* theme accent */
   },
 ]
 
@@ -172,10 +172,10 @@ export default function CompanyDashboard() {
 
         {/* Stats row */}
         <div className="cd-stats-row">
-          <StatCard icon="🎓" label="Internships Posted" value="0" color="#321E48" />
-          <StatCard icon="💼" label="Jobs Posted"        value="0" color="#43637E" />
-          <StatCard icon="🔬" label="Problems Submitted" value="0" color="#65DCD5" />
-          <StatCard icon="👁️" label="Total Views"        value="0" color="#65DCD5" />
+          <StatCard icon="🎓" label="Internships Posted" value="0" color="#0D47A1" />
+          <StatCard icon="💼" label="Jobs Posted"        value="0" color="#0D47A1" />
+          <StatCard icon="🔬" label="Problems Submitted" value="0" color="#0D47A1" />
+          <StatCard icon="👁️" label="Total Views"        value="0" color="#0D47A1" />
         </div>
 
         {/* Content panel */}

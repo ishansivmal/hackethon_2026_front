@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { postProblem } from '../../api/company'
 
 const INIT = {
   description: '',
-  pdf: '',
+  pdf: null,
+  pdfName: '',
 }
 
 function Field({ label, hint, children }) {
@@ -20,17 +21,28 @@ function Field({ label, hint, children }) {
 export default function PostProblem() {
   const [form, setForm] = useState(INIT)
   const [submitting, setSubmitting] = useState(false)
+  const pdfInputRef = useRef(null)
 
   const handle = (e) => {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
   }
 
+  const handlePdf = (e) => {
+    const file = e.target.files?.[0] || null
+    setForm(prev => ({ ...prev, pdf: file, pdfName: file?.name || '' }))
+    e.target.value = ''
+  }
+
   const submit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
     try {
-      await postProblem(form)
+      const fd = new FormData()
+      fd.append('description', form.description)
+      if (form.pdf) fd.append('pdf', form.pdf)
+
+      await postProblem(fd)
       toast.success('Problem statement submitted successfully! 🔬')
       setForm(INIT)
     } catch (err) {
@@ -76,20 +88,40 @@ export default function PostProblem() {
         </Field>
 
         <Field
-          label="PDF / Document URL"
-          hint="Link to a detailed problem brief, dataset, or specification PDF"
+          label="PDF / Document"
+          hint="Attach a detailed problem brief, dataset, or specification PDF"
         >
-          <div className="cd-pdf-input-wrap">
-            <span className="cd-pdf-icon">📄</span>
-            <input
-              id="problem-pdf"
-              className="cd-input cd-pdf-input"
-              name="pdf"
-              placeholder="https://docs.example.com/problem-brief.pdf"
-              value={form.pdf}
-              onChange={handle}
-            />
-          </div>
+          <input
+            ref={pdfInputRef}
+            id="problem-pdf"
+            className="cd-input"
+            type="file"
+            accept=".pdf,application/pdf"
+            onChange={handlePdf}
+            hidden
+          />
+          {form.pdfName ? (
+            <div className="cd-pdf-picked">
+              <span className="cd-pdf-icon">📄</span>
+              <span className="cd-file-name">{form.pdfName}</span>
+              <button
+                type="button"
+                className="cd-upload-remove cd-upload-remove--static"
+                onClick={() => setForm(prev => ({ ...prev, pdf: null, pdfName: '' }))}
+              >
+                ✕ Remove
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="cd-upload-box"
+              onClick={() => pdfInputRef.current?.click()}
+            >
+              <span className="cd-upload-icon">📄</span>
+              <span>Attach a PDF</span>
+            </button>
+          )}
         </Field>
 
         <button

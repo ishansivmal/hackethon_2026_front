@@ -1,22 +1,34 @@
+@theme
+{
+    --color-primary: #E3F2FD;
+    --color-secondary: #0D47A1;
+    --color-accent: #2196F3;
+}
+
 :root {
-  /* ── Brand palette — single source of truth ── */
-  --brand-dark:   #321E48;   /* Deep purple */
-  --brand-mid:    #43637E;   /* Steel blue  */
-  --brand-accent: #65DCD5;   /* Teal        */
+  /* ── Theme colors — single source of truth ── */
+  --color-primary:   #E3F2FD;   /* Light blue  */
+  --color-secondary: #0D47A1;   /* Dark blue   */
+  --color-accent:    #2196F3;   /* Blue        */
+
+  /* ── Brand palette (derived from theme colors) ── */
+  --brand-dark:   #0D47A1;
+  --brand-mid:    #2196F3;
+  --brand-accent: #90CAF9;
 
   /* ── Semantic tokens (light mode) ── */
-  --text:         var(--brand-mid);                    /* Body / muted text   */
-  --text-h:       var(--brand-dark);                   /* Headings / labels   */
-  --bg:           #ffffff;
-  --border:       #d4cce0;                             /* Light purple border */
-  --code-bg:      #f2eef9;                             /* Subtle purple tint  */
-  --accent:       var(--brand-accent);                 /* Interactive — teal  */
-  --accent-bg:    rgba(101, 220, 213, 0.12);
-  --accent-border:rgba(101, 220, 213, 0.50);
-  --social-bg:    rgba(242, 238, 249, 0.5);
+  --text:         var(--color-secondary);       /* Body / muted text   */
+  --text-h:       var(--color-secondary);       /* Headings / labels   */
+  --bg:           #E3F2FD;                      /* Page background     */
+  --border:       rgba(13, 71, 161, 0.12);      /* Subtle blue edge    */
+  --code-bg:      #FFFFFF;                      /* Cards / surfaces    */
+  --accent:       var(--color-accent);          /* Interactive         */
+  --accent-bg:    rgba(33, 150, 243, 0.10);
+  --accent-border:rgba(33, 150, 243, 0.40);
+  --social-bg:    rgba(227, 242, 253, 0.5);
   --shadow:
-    rgba(50, 30, 72, 0.10) 0 10px 15px -3px,
-    rgba(50, 30, 72, 0.05) 0  4px  6px -2px;
+    rgba(13, 71, 161, 0.10) 0 10px 15px -3px,
+    rgba(13, 71, 161, 0.05) 0  4px  6px -2px;
 
   --sans:    system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -24,7 +36,7 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -34,33 +46,6 @@
 
   @media (max-width: 1024px) {
     font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Brand palette stays the same — teal pops on dark */
-    --brand-dark:   #321E48;
-    --brand-mid:    #43637E;
-    --brand-accent: #65DCD5;
-
-    /* ── Semantic tokens (dark mode) ── */
-    --text:         #9db8cc;                           /* Muted steel-blue   */
-    --text-h:       #e8f0f5;                           /* Near-white heading */
-    --bg:           #1b1129;                           /* Deep purple bg     */
-    --border:       #3a2750;                           /* Lifted purple      */
-    --code-bg:      #241735;                           /* Elevated surface   */
-    --accent:       var(--brand-accent);               /* Teal stays vibrant */
-    --accent-bg:    rgba(101, 220, 213, 0.15);
-    --accent-border:rgba(101, 220, 213, 0.45);
-    --social-bg:    rgba(36, 23, 53, 0.60);
-    --shadow:
-      rgba(0, 0, 0, 0.50) 0 10px 15px -3px,
-      rgba(0, 0, 0, 0.30) 0  4px  6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
   }
 }
 
@@ -75,11 +60,12 @@ body {
 }
 
 #root {
-  width: 1126px;
+  width: 100%;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 0;
+  padding: 0;
   text-align: center;
-  min-height: 100svh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
