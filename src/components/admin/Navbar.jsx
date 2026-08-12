@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/useAuth'
-import { homePathFor } from '../utils/homePath'
-import AdminProfileModal from './admin/AdminProfileModal'
+import { useAuth } from '../../context/useAuth'
+import { homePathFor } from '../../utils/homePath'
+import AdminProfileModal from './AdminProfileModal'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
@@ -107,3 +107,4 @@ export default function Navbar() {
     </>
   )
 }
+

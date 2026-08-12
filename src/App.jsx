@@ -42,8 +42,8 @@ function App() {
           <Route path="/dashboard" element={<DashboardRedirect />} />
           <Route path="/company/dashboard" element={<CompanyDashboard />} />
           <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} />
-          <Route path="/admin" element={<AdminRoute />}>
-            <Route index element={<AdminDashboard />} />
+          <Route path="/admin/*" element={<AdminRoute />}>
+            <Route path="*" element={<AdminDashboard />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
