@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
+import { postProblem } from '../../api/company'
 
 const INIT = {
   description: '',
@@ -28,10 +29,16 @@ export default function PostProblem() {
   const submit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
-    await new Promise(r => setTimeout(r, 900))
-    toast.success('Problem statement submitted successfully! 🔬')
-    setForm(INIT)
-    setSubmitting(false)
+    try {
+      await postProblem(form)
+      toast.success('Problem statement submitted successfully! 🔬')
+      setForm(INIT)
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to submit problem. Please try again.'
+      toast.error(message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
