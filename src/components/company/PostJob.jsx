@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { postJob } from '../../api/company'
+import ImageSelector from './ImageSelector'
 
 const JOB_TYPES = ['REMOTE', 'PHYSICAL', 'HYBRID']
 
 const INIT = {
   jobPosition: '',
-  image: '',
   requirements: '',
   jobType: 'REMOTE',
   location: '',
   salary: '',
+  image: null,
+  imagePreview: '',
 }
 
 function Field({ label, hint, children }) {
@@ -32,12 +34,30 @@ export default function PostJob() {
     setForm(prev => ({ ...prev, [name]: value }))
   }
 
+  const handleImage = (file) => {
+    if (form.imagePreview) URL.revokeObjectURL(form.imagePreview)
+    setForm(prev => ({
+      ...prev,
+      image: file,
+      imagePreview: file ? URL.createObjectURL(file) : '',
+    }))
+  }
+
   const submit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
     try {
-      await postJob(form)
+      const fd = new FormData()
+      fd.append('jobPosition', form.jobPosition)
+      fd.append('requirements', form.requirements)
+      fd.append('jobType', form.jobType)
+      fd.append('location', form.location)
+      fd.append('salary', form.salary)
+      if (form.image) fd.append('image', form.image)
+
+      await postJob(fd)
       toast.success(`Job "${form.jobPosition}" posted successfully! 💼`)
+      if (form.imagePreview) URL.revokeObjectURL(form.imagePreview)
       setForm(INIT)
     } catch (err) {
       const message = err.response?.data?.message || 'Failed to post job. Please try again.'
@@ -72,14 +92,11 @@ export default function PostJob() {
             />
           </Field>
 
-          <Field label="Image URL" hint="Company or role banner image URL">
-            <input
+          <Field label="Company / Banner Image" hint="Upload a company or role banner image">
+            <ImageSelector
               id="job-image"
-              className="cd-input"
-              name="image"
-              placeholder="https://example.com/banner.jpg"
-              value={form.image}
-              onChange={handle}
+              preview={form.imagePreview}
+              onChange={handleImage}
             />
           </Field>
 

@@ -46,8 +46,9 @@
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--brand-accent) 0%, var(--brand-dark) 100%);
-  color: #fff;
+  background: var(--bg);
+  color: var(--text-h);
+  border: 1.5px solid var(--accent-border);
   font-size: 18px;
   font-weight: 700;
   display: flex;
@@ -55,7 +56,7 @@
   justify-content: center;
   letter-spacing: -0.5px;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(50, 30, 72, 0.35);
+  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.15);
 }
 
 .cd-brand-info {
@@ -629,6 +630,100 @@
   padding-left: 40px;
 }
 
+/* ── File upload (image / PDF selector) ──────────────────────────────────── */
+.cd-upload {
+  width: 100%;
+}
+
+.cd-upload-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 26px 16px;
+  background: var(--bg);
+  border: 1.5px dashed var(--accent-border);
+  border-radius: 12px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.cd-upload-box:hover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.cd-upload-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.cd-upload-preview {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.cd-upload-preview img {
+  display: block;
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+}
+
+.cd-upload-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(13, 71, 161, 0.85);
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cd-upload-remove:hover {
+  filter: brightness(1.1);
+}
+
+.cd-upload-remove--static {
+  position: static;
+}
+
+.cd-file-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-h);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cd-pdf-picked {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+}
+
+.cd-pdf-picked .cd-upload-remove {
+  margin-left: auto;
+}
+
 /* ── Submit buttons ──────────────────────────────────────────────────────── */
 .cd-submit-btn {
   font: inherit;
@@ -642,9 +737,9 @@
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  background: linear-gradient(135deg, var(--brand-accent) 0%, var(--brand-dark) 100%);
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(101, 220, 213, 0.28);
+  background: var(--brand-dark);
+  color: var(--bg);
+  box-shadow: 0 4px 14px rgba(13, 71, 161, 0.25);
   transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
   align-self: flex-start;
   min-width: 180px;
@@ -653,7 +748,7 @@
 .cd-submit-btn:hover:not(:disabled) {
   filter: brightness(1.1);
   transform: translateY(-1px);
-  box-shadow: 0 6px 22px rgba(101, 220, 213, 0.40);
+  box-shadow: 0 6px 18px rgba(13, 71, 161, 0.35);
 }
 
 .cd-submit-btn:active:not(:disabled) {
@@ -665,22 +760,9 @@
   cursor: not-allowed;
 }
 
-.cd-submit-btn--job {
-  background: linear-gradient(135deg, var(--brand-mid) 0%, var(--brand-dark) 100%);
-  box-shadow: 0 4px 16px rgba(67, 99, 126, 0.28);
-}
-
-.cd-submit-btn--job:hover:not(:disabled) {
-  box-shadow: 0 6px 22px rgba(67, 99, 126, 0.40);
-}
-
+.cd-submit-btn--job,
 .cd-submit-btn--problem {
-  background: linear-gradient(135deg, var(--brand-accent) 0%, var(--brand-mid) 100%);
-  box-shadow: 0 4px 16px rgba(101, 220, 213, 0.28);
-}
-
-.cd-submit-btn--problem:hover:not(:disabled) {
-  box-shadow: 0 6px 22px rgba(101, 220, 213, 0.40);
+  background: var(--brand-dark);
 }
 
 /* ── Spinner ─────────────────────────────────────────────────────────────── */
@@ -688,7 +770,7 @@
   display: inline-block;
   width: 15px;
   height: 15px;
-  border: 2px solid rgba(255,255,255,0.35);
+  border: 2px solid rgba(255, 255, 255, 0.35);
   border-top-color: #fff;
   border-radius: 50%;
   animation: cd-spin 0.65s linear infinite;
