@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
+import { postInternship } from '../../api/company'
 
 const INTERN_TYPES = ['PHYSICAL', 'ONLINE', 'HYBRID']
 
@@ -37,10 +38,16 @@ export default function PostInternship() {
   const submit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
-    await new Promise(r => setTimeout(r, 900))
-    toast.success(`Internship "${form.title}" posted successfully! 🎓`)
-    setForm(INIT)
-    setSubmitting(false)
+    try {
+      await postInternship(form)
+      toast.success(`Internship "${form.title}" posted successfully! 🎓`)
+      setForm(INIT)
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to post internship. Please try again.'
+      toast.error(message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -108,7 +115,7 @@ export default function PostInternship() {
               id="intern-deadline"
               className="cd-input"
               name="deadline"
-              placeholder="e.g. 2025-09-30 or September 30, 2025"
+              type="date"
               value={form.deadline}
               onChange={handle}
               required

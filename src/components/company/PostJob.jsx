@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
+import { postJob } from '../../api/company'
 
 const JOB_TYPES = ['REMOTE', 'PHYSICAL', 'HYBRID']
 
@@ -34,10 +35,16 @@ export default function PostJob() {
   const submit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
-    await new Promise(r => setTimeout(r, 900))
-    toast.success(`Job "${form.jobPosition}" posted successfully! 💼`)
-    setForm(INIT)
-    setSubmitting(false)
+    try {
+      await postJob(form)
+      toast.success(`Job "${form.jobPosition}" posted successfully! 💼`)
+      setForm(INIT)
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to post job. Please try again.'
+      toast.error(message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
