@@ -2,159 +2,190 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAuth } from '../context/useAuth'
+import PostInternship from '../components/company/PostInternship'
+import PostJob from '../components/company/PostJob'
+import PostProblem from '../components/company/PostProblem'
+import '../styles/CompanyDashboard.css'
 
+// ─── Nav items config ─────────────────────────────────────────────────────────
+const NAV_ITEMS = [
+  {
+    id: 'internship',
+    label: 'Post Internship',
+    icon: '🎓',
+    desc: 'Add an internship listing',
+    color: '#321E48',   /* brand-dark */
+  },
+  {
+    id: 'job',
+    label: 'Post Job',
+    icon: '💼',
+    desc: 'Publish a job opening',
+    color: '#43637E',   /* brand-mid */
+  },
+  {
+    id: 'problem',
+    label: 'Post Problem',
+    icon: '🔬',
+    desc: 'Submit a company challenge',
+    color: '#65DCD5',   /* brand-accent */
+  },
+]
+
+// ─── Sidebar nav item ─────────────────────────────────────────────────────────
+function NavItem({ item, active, onClick }) {
+  return (
+    <button
+      id={`cd-nav-${item.id}`}
+      type="button"
+      className={`cd-nav-item${active ? ' cd-nav-item--active' : ''}`}
+      onClick={() => onClick(item.id)}
+      style={{ '--item-color': item.color }}
+    >
+      <span className="cd-nav-icon">{item.icon}</span>
+      <span className="cd-nav-text">
+        <span className="cd-nav-label">{item.label}</span>
+        <span className="cd-nav-desc">{item.desc}</span>
+      </span>
+      {active && <span className="cd-nav-arrow">›</span>}
+    </button>
+  )
+}
+
+// ─── Stat card ────────────────────────────────────────────────────────────────
+function StatCard({ icon, label, value, color }) {
+  return (
+    <div className="cd-stat-card" style={{ '--stat-color': color }}>
+      <span className="cd-stat-icon">{icon}</span>
+      <div>
+        <p className="cd-stat-value">{value}</p>
+        <p className="cd-stat-label">{label}</p>
+      </div>
+    </div>
+  )
+}
+
+// ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function CompanyDashboard() {
   const { user, loading } = useAuth()
   const navigate = useNavigate()
-
   const welcomeShown = useRef(false)
-
-  const [form, setForm] = useState({
-    title: '',
-    companyName: '',
-    location: '',
-    type: 'Full-time',
-    salary: '',
-    description: '',
-  })
+  const [activeView, setActiveView] = useState('internship')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login')
-    }
+    if (!loading && !user) navigate('/login')
   }, [user, loading, navigate])
 
   useEffect(() => {
     if (user && !welcomeShown.current) {
       welcomeShown.current = true
-      toast.success(`Welcome, ${user.name}!`)
+      toast.success(`Welcome back, ${user.name}! 🎉`)
     }
   }, [user])
 
-  if (loading) {
-    return <p className="page-message">Loading...</p>
-  }
+  if (loading) return <p className="page-message">Loading…</p>
+  if (!user)   return null
 
-  if (!user) {
-    return null
-  }
+  const initials = user.name
+    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'CO'
 
-  const handleChange = (event) => {
-    setForm({ ...form, [event.target.name]: event.target.value })
-  }
+  const activeItem = NAV_ITEMS.find(n => n.id === activeView)
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    toast.success(`Vacancy "${form.title}" posted (demo — backend coming soon).`)
-    setForm({
-      title: '',
-      companyName: '',
-      location: '',
-      type: 'Full-time',
-      salary: '',
-      description: '',
-    })
+  const handleNav = (id) => {
+    setActiveView(id)
+    setSidebarOpen(false)
   }
 
   return (
-    <section className="dashboard">
-      <h1>Company Dashboard</h1>
-      <p>Post and manage your job vacancies, {user.name}!</p>
+    <div className="cd-shell">
 
-      <div className="profile-card">
-        <h2>Post a new vacancy</h2>
-        <form className="vacancy-form" onSubmit={handleSubmit}>
-          <label className="form-label" htmlFor="title">
-            Job title
-          </label>
-          <input
-            id="title"
-            type="text"
-            name="title"
-            className="form-input"
-            placeholder="e.g. Senior React Developer"
-            value={form.title}
-            onChange={handleChange}
-            required
-          />
+      {/* ── Mobile overlay ── */}
+      {sidebarOpen && (
+        <div
+          className="cd-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-          <label className="form-label" htmlFor="companyName">
-            Company name
-          </label>
-          <input
-            id="companyName"
-            type="text"
-            name="companyName"
-            className="form-input"
-            placeholder="e.g. Acme Inc."
-            value={form.companyName}
-            onChange={handleChange}
-            required
-          />
+      {/* ══════════════ SIDEBAR ══════════════ */}
+      <aside className={`cd-sidebar${sidebarOpen ? ' cd-sidebar--open' : ''}`}>
 
-          <label className="form-label" htmlFor="location">
-            Location
-          </label>
-          <input
-            id="location"
-            type="text"
-            name="location"
-            className="form-input"
-            placeholder="e.g. Colombo (Remote friendly)"
-            value={form.location}
-            onChange={handleChange}
-            required
-          />
+        {/* Brand / profile */}
+        <div className="cd-sidebar-brand">
+          <div className="cd-avatar">{initials}</div>
+          <div className="cd-brand-info">
+            <p className="cd-brand-name">{user.name}</p>
+            <p className="cd-brand-role">Company Account</p>
+          </div>
+        </div>
 
-          <label className="form-label" htmlFor="type">
-            Job type
-          </label>
-          <select
-            id="type"
-            name="type"
-            className="form-input"
-            value={form.type}
-            onChange={handleChange}
+        <div className="cd-sidebar-divider" />
+
+        {/* Navigation */}
+        <p className="cd-sidebar-section-label">MANAGE</p>
+        <nav className="cd-nav" role="navigation" aria-label="Dashboard navigation">
+          {NAV_ITEMS.map(item => (
+            <NavItem
+              key={item.id}
+              item={item}
+              active={activeView === item.id}
+              onClick={handleNav}
+            />
+          ))}
+        </nav>
+
+        {/* Footer status */}
+        <div className="cd-sidebar-footer">
+          <span className="cd-status-dot" />
+          <span className="cd-status-label">Active</span>
+        </div>
+      </aside>
+
+      {/* ══════════════ MAIN ══════════════ */}
+      <div className="cd-main">
+
+        {/* Top bar */}
+        <header className="cd-topbar">
+          {/* Mobile menu toggle */}
+          <button
+            id="cd-menu-toggle"
+            type="button"
+            className="cd-menu-toggle"
+            onClick={() => setSidebarOpen(o => !o)}
+            aria-label="Toggle sidebar"
           >
-            <option>Full-time</option>
-            <option>Part-time</option>
-            <option>Contract</option>
-            <option>Internship</option>
-            <option>Remote</option>
-          </select>
-
-          <label className="form-label" htmlFor="salary">
-            Salary range
-          </label>
-          <input
-            id="salary"
-            type="text"
-            name="salary"
-            className="form-input"
-            placeholder="e.g. Rs. 250,000 - 350,000"
-            value={form.salary}
-            onChange={handleChange}
-          />
-
-          <label className="form-label" htmlFor="description">
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            className="form-input"
-            rows="4"
-            placeholder="Describe the role and requirements"
-            value={form.description}
-            onChange={handleChange}
-            required
-          />
-
-          <button type="submit" className="btn btn-primary btn-block">
-            Post Vacancy
+            <span /><span /><span />
           </button>
-        </form>
+
+          <div className="cd-topbar-title">
+            <span className="cd-topbar-icon">{activeItem?.icon}</span>
+            <h1 className="cd-topbar-heading">{activeItem?.label}</h1>
+          </div>
+
+          <div className="cd-topbar-badge">
+            <span className="cd-status-dot" />
+            Active
+          </div>
+        </header>
+
+        {/* Stats row */}
+        <div className="cd-stats-row">
+          <StatCard icon="🎓" label="Internships Posted" value="0" color="#321E48" />
+          <StatCard icon="💼" label="Jobs Posted"        value="0" color="#43637E" />
+          <StatCard icon="🔬" label="Problems Submitted" value="0" color="#65DCD5" />
+          <StatCard icon="👁️" label="Total Views"        value="0" color="#65DCD5" />
+        </div>
+
+        {/* Content panel */}
+        <div className="cd-content">
+          {activeView === 'internship' && <PostInternship />}
+          {activeView === 'job'        && <PostJob />}
+          {activeView === 'problem'    && <PostProblem />}
+        </div>
+
       </div>
-    </section>
+    </div>
   )
 }
