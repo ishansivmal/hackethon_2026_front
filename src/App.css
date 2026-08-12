@@ -291,6 +291,66 @@
   opacity: 0.8;
 }
 
+.role-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.role-option {
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+
+  &:hover {
+    border-color: var(--accent);
+  }
+
+  &.active {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+
+    .role-option-title {
+      color: var(--accent);
+    }
+  }
+}
+
+.role-option-title {
+  font-size: 15px;
+  color: var(--text-h);
+}
+
+.role-option-desc {
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+.vacancy-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.empty-state {
+  color: var(--text);
+  opacity: 0.8;
+}
+
 .auth-switch {
   margin: 16px 0 0;
   font-size: 15px;
@@ -475,6 +535,10 @@
     .btn {
       width: 100%;
     }
+  }
+
+  .role-options {
+    grid-template-columns: 1fr;
   }
 
   .admin {
