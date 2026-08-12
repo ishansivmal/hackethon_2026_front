@@ -45,7 +45,7 @@ export default function AdminDashboard() {
       html: `Set <strong>${user.email}</strong> as <strong>${role}</strong>?`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#aa3bff',
+      confirmButtonColor: '#65DCD5',
       cancelButtonColor: '#6b7280',
       confirmButtonText: 'Yes, update',
       cancelButtonText: 'Cancel',
@@ -72,7 +72,7 @@ export default function AdminDashboard() {
         title: 'Role updated!',
         text: `${response.data.user.email} is now ${response.data.user.role}.`,
         icon: 'success',
-        confirmButtonColor: '#aa3bff',
+        confirmButtonColor: '#65DCD5',
       })
     } catch (err) {
       setPendingRoles((prev) => ({ ...prev, [id]: undefined }))
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
         title: 'Error',
         text: msg,
         icon: 'error',
-        confirmButtonColor: '#aa3bff',
+        confirmButtonColor: '#65DCD5',
       })
     }
   }
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
         title: 'Deleted!',
         text: `User "${user.email}" was deleted.`,
         icon: 'success',
-        confirmButtonColor: '#aa3bff',
+        confirmButtonColor: '#65DCD5',
       })
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to delete user'
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
         title: 'Error',
         text: msg,
         icon: 'error',
-        confirmButtonColor: '#aa3bff',
+        confirmButtonColor: '#65DCD5',
       })
     }
   }

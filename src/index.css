@@ -1,19 +1,26 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* ── Brand palette — single source of truth ── */
+  --brand-dark:   #321E48;   /* Deep purple */
+  --brand-mid:    #43637E;   /* Steel blue  */
+  --brand-accent: #65DCD5;   /* Teal        */
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* ── Semantic tokens (light mode) ── */
+  --text:         var(--brand-mid);                    /* Body / muted text   */
+  --text-h:       var(--brand-dark);                   /* Headings / labels   */
+  --bg:           #ffffff;
+  --border:       #d4cce0;                             /* Light purple border */
+  --code-bg:      #f2eef9;                             /* Subtle purple tint  */
+  --accent:       var(--brand-accent);                 /* Interactive — teal  */
+  --accent-bg:    rgba(101, 220, 213, 0.12);
+  --accent-border:rgba(101, 220, 213, 0.50);
+  --social-bg:    rgba(242, 238, 249, 0.5);
+  --shadow:
+    rgba(50, 30, 72, 0.10) 0 10px 15px -3px,
+    rgba(50, 30, 72, 0.05) 0  4px  6px -2px;
+
+  --sans:    system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --mono:    ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -32,17 +39,24 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
+    /* Brand palette stays the same — teal pops on dark */
+    --brand-dark:   #321E48;
+    --brand-mid:    #43637E;
+    --brand-accent: #65DCD5;
+
+    /* ── Semantic tokens (dark mode) ── */
+    --text:         #9db8cc;                           /* Muted steel-blue   */
+    --text-h:       #e8f0f5;                           /* Near-white heading */
+    --bg:           #1b1129;                           /* Deep purple bg     */
+    --border:       #3a2750;                           /* Lifted purple      */
+    --code-bg:      #241735;                           /* Elevated surface   */
+    --accent:       var(--brand-accent);               /* Teal stays vibrant */
+    --accent-bg:    rgba(101, 220, 213, 0.15);
+    --accent-border:rgba(101, 220, 213, 0.45);
+    --social-bg:    rgba(36, 23, 53, 0.60);
     --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+      rgba(0, 0, 0, 0.50) 0 10px 15px -3px,
+      rgba(0, 0, 0, 0.30) 0  4px  6px -2px;
   }
 
   #social .button-icon {
