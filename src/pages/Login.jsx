@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAuth } from '../context/useAuth'
+import { homePathFor } from '../utils/homePath'
 import GoogleSignIn from '../components/GoogleSignIn'
 
 export default function Login() {
@@ -20,9 +21,9 @@ export default function Login() {
     setLoading(true)
 
     try {
-      await login(form.email, form.password)
+      const data = await login(form.email, form.password)
       toast.success('Logged in successfully!')
-      navigate('/dashboard')
+      navigate(homePathFor(data.user))
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed. Please try again.')
     } finally {

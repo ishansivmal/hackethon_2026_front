@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { homePathFor } from '../utils/homePath'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
@@ -14,6 +15,8 @@ export default function Navbar() {
     await logout()
     navigate('/login')
   }
+
+  const homePath = homePathFor(user)
 
   return (
     <nav className="navbar">
@@ -42,9 +45,16 @@ export default function Navbar() {
 
         {user ? (
           <>
-            <NavLink to="/dashboard" className="nav-link" onClick={closeMenu}>
-              Dashboard
-            </NavLink>
+            {user.role === 'company' && (
+              <NavLink to={homePath} className="nav-link" onClick={closeMenu}>
+                Post Vacancies
+              </NavLink>
+            )}
+            {user.role === 'jobseeker' && (
+              <NavLink to={homePath} className="nav-link" onClick={closeMenu}>
+                Browse Jobs
+              </NavLink>
+            )}
             {user.role === 'admin' && (
               <NavLink to="/admin" className="nav-link" onClick={closeMenu}>
                 Admin
