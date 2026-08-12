@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { getProblems } from '../../api/customerapi'
+import { getProblems, getAppliedRecord } from '../../api/customerapi'
+import ItemCard from './ItemCard'
 
 export default function Problems() {
   const [problems, setProblems] = useState([])
+  const [appliedIds, setAppliedIds] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -16,7 +18,16 @@ export default function Problems() {
         setLoading(false)
       }
     }
+    const fetchApplied = async () => {
+      try {
+        const response = await getAppliedRecord()
+        setAppliedIds(response.data.problems || [])
+      } catch (err) {
+        console.error("Failed to fetch applied records", err)
+      }
+    }
     fetchProblems()
+    fetchApplied()
   }, [])
 
   return (
@@ -36,33 +47,7 @@ export default function Problems() {
           }}
         >
           {problems.map((problem) => (
-            <div
-              key={problem.problem_ID || problem.id}
-              className="card"
-              style={{
-                border: '1px solid #444',
-                padding: '1.5rem',
-                borderRadius: '8px',
-                backgroundColor: '#1a1a2e',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-                textAlign: 'left'
-              }}
-            >
-              <p style={{ margin: 0, fontSize: '1rem', color: '#fff' }}>
-                {problem.description}
-              </p>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#aaa', marginTop: 'auto' }}>
-                <strong>Posted By:</strong> {problem.user?.name || 'Unknown User'}
-              </p>
-              {problem.pdf && (
-                <a href={problem.pdf} target="_blank" rel="noreferrer" style={{ marginTop: '0.5rem', color: '#4da6ff' }}>
-                  View Requirements PDF
-                </a>
-              )}
-            </div>
+            <ItemCard key={problem.problem_ID || problem.id} item={problem} type="problem" hasApplied={appliedIds.includes(problem.problem_ID || problem.id)} />
           ))}
         </div>
       ) : (

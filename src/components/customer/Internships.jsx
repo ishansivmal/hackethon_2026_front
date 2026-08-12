@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { getInternships } from '../../api/customerapi'
+import { getInternships, getAppliedRecord } from '../../api/customerapi'
+import ItemCard from './ItemCard'
 
 export default function Internships() {
   const [internships, setInternships] = useState([])
+  const [appliedIds, setAppliedIds] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -16,7 +18,16 @@ export default function Internships() {
         setLoading(false)
       }
     }
+    const fetchApplied = async () => {
+      try {
+        const response = await getAppliedRecord()
+        setAppliedIds(response.data.internships || [])
+      } catch (err) {
+        console.error("Failed to fetch applied records", err)
+      }
+    }
     fetchInternships()
+    fetchApplied()
   }, [])
 
   return (
@@ -36,51 +47,7 @@ export default function Internships() {
           }}
         >
           {internships.map((internship) => (
-            <div
-              key={internship.id}
-              className="card"
-              style={{
-                border: '1px solid #444',
-                padding: '1.5rem',
-                borderRadius: '8px',
-                backgroundColor: '#1a1a2e',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-                textAlign: 'left'
-              }}
-            >
-              {internship.photoUrl && (
-                <img
-                  src={internship.photoUrl}
-                  alt={internship.title}
-                  style={{
-                    width: '100%',
-                    height: '150px',
-                    objectFit: 'cover',
-                    borderRadius: '4px',
-                    marginBottom: '0.5rem'
-                  }}
-                />
-              )}
-              <h3 style={{ margin: '0 0 0.5rem 0', color: '#fff' }}>{internship.title}</h3>
-              <p style={{ margin: 0, fontSize: '0.9rem' }}>
-                <strong>Company:</strong> {internship.user?.name || 'Unknown Company'}
-              </p>
-              <p style={{ margin: 0, fontSize: '0.9rem' }}>
-                <strong>Location:</strong> {internship.location} ({internship.internType})
-              </p>
-              <p style={{ margin: 0, fontSize: '0.9rem' }}>
-                <strong>Duration:</strong> {internship.duration}
-              </p>
-              <p style={{ margin: 0, fontSize: '0.9rem' }}>
-                <strong>Paid:</strong> {internship.isPaid ? 'Yes' : 'No'}
-              </p>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#aaa' }}>
-                <strong>Deadline:</strong> {new Date(internship.deadline).toLocaleDateString()}
-              </p>
-            </div>
+            <ItemCard key={internship.id} item={internship} type="internship" hasApplied={appliedIds.includes(internship.id)} />
           ))}
         </div>
       ) : (
