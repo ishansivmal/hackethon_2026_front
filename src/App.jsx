@@ -9,7 +9,7 @@ import Signup from './pages/Signup'
 import ConfirmEmail from './pages/ConfirmEmail'
 import CompanyDashboard from './pages/CompanyDashboard'
 import JobSeekerDashboard from './pages/customerPage'
-import AdminDashboard from './pages/AdminDashboard'
+import AdminPage from './pages/AdminPage'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Internships from './components/customer/Internships'
@@ -49,15 +49,9 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<DashboardRedirect />} />
           <Route path="/company/dashboard" element={<CompanyDashboard />} />
-<<<<<<< HEAD
-          <Route path="/customerPage" element={<JobSeekerDashboard />} />
-          <Route path="/admin" element={<AdminRoute />}>
-            <Route index element={<AdminDashboard />} />
-=======
           <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} />
           <Route path="/admin/*" element={<AdminRoute />}>
-            <Route path="*" element={<AdminDashboard />} />
->>>>>>> 7962c4251899a02fbe2e0beae9794970780df7c4
+            <Route path="*" element={<AdminPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

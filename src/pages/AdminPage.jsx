@@ -5,6 +5,7 @@ import Swal from 'sweetalert2'
 import { deleteUser, getUsers, updateUserRole } from '../api/admin'
 import { useAuth } from '../context/useAuth'
 
+import AdminSidebar from '../components/admin/AdminSidebar'
 import AdminDashboardView from '../components/admin/AdminDashboardView'
 import AdminUsersPage from '../components/admin/AdminUsersPage'
 import AdminCompaniesPage from '../components/admin/AdminCompaniesPage'
@@ -197,88 +198,13 @@ export default function AdminPage() {
 
   return (
     <div className="admin-layout">
-      {/* Sidebar navigation */}
-      <aside className="admin-sidebar">
-        <div className="sidebar-header">
-          <span className="sidebar-brand-icon">⚡</span>
-          <div>
-            <h2 className="sidebar-title">Admin Hub</h2>
-            <span className="sidebar-subtitle">Control Panel</span>
-          </div>
-        </div>
-
-        <nav className="sidebar-nav">
-          <NavLink
-            to="/admin"
-            end
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <span className="sidebar-icon">📊</span>
-            <span>Dashboard</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/users"
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <span className="sidebar-icon">👥</span>
-            <span>Users</span>
-            <span className="sidebar-badge">{users.length}</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/companies"
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <span className="sidebar-icon">🏢</span>
-            <span>Companies</span>
-            {companies.filter((c) => c.status === 'Pending').length > 0 && (
-              <span className="sidebar-badge badge-warning">
-                {companies.filter((c) => c.status === 'Pending').length}
-              </span>
-            )}
-          </NavLink>
-
-          <NavLink
-            to="/admin/reports"
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <span className="sidebar-icon">📈</span>
-            <span>Reports</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/notifications"
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <span className="sidebar-icon">🔔</span>
-            <span>Notifications</span>
-            <span className="sidebar-badge">{notifications.length}</span>
-          </NavLink>
-        </nav>
-
-        <div className="sidebar-footer">
-          <div className="admin-profile-pill">
-            <span className="admin-avatar">
-              {currentUser?.name?.[0] || 'A'}
-            </span>
-            <div className="admin-info">
-              <span className="admin-name">{currentUser?.name}</span>
-              <span className="admin-role">Administrator</span>
-            </div>
-          </div>
-        </div>
-      </aside>
+      {/* Admin Sidebar Component */}
+      <AdminSidebar
+        users={users}
+        companies={companies}
+        notifications={notifications}
+        currentUser={currentUser}
+      />
 
       {/* Nested Route Views */}
       <main className="admin-content">
