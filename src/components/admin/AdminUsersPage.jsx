@@ -19,108 +19,138 @@ export default function AdminUsersPage({
     return matchesSearch && matchesRole
   })
 
+  const totalCount = users.length
+  const adminCount = users.filter((u) => u.role === 'admin').length
+
   return (
     <div className="tab-content">
-      <div className="content-header">
+      {/* Header section */}
+      <div className="content-header align-center">
         <div>
           <h1>User Management</h1>
-          <p className="subtitle">
-            View, search, filter, update roles, or delete system user accounts.
-          </p>
+        </div>
+
+        {/* Top-right summary badges */}
+        <div className="header-stat-badges">
+          <div className="badge-stat badge-active">
+            <span className="dot dot-active"></span>
+            <span>TOTAL</span>
+            <strong>{totalCount} Users</strong>
+          </div>
+          <div className="badge-stat">
+            <span>ADMINS</span>
+            <strong>{adminCount}</strong>
+          </div>
         </div>
       </div>
 
-      {/* Filter controls */}
-      <div className="filters-bar">
-        <input
-          type="text"
-          className="form-input search-input"
-          placeholder="Search by user name or email..."
-          value={userSearch}
-          onChange={(e) => setUserSearch(e.target.value)}
-        />
-        <select
-          className="role-select"
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-        >
-          <option value="all">All Roles</option>
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-          <option value="company">Company</option>
-        </select>
-      </div>
+      {/* Main Dashboard Card Container */}
+      <div className="dashboard-card">
+        <div className="card-header-flex">
+          <div>
+            <h3>All Registered Users</h3>
+          </div>
 
-      {loadingUsers ? (
-        <p className="page-message">Loading system users...</p>
-      ) : filteredUsers.length === 0 ? (
-        <div className="empty-state-box">
-          <p>No users found matching your search criteria.</p>
+          {/* Compact Search & Filter Toolbar */}
+          <div className="filters-bar compact-filters margin-bottom-none">
+            <div className="search-input-wrapper">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                className="compact-search-input"
+                placeholder="Search user or email..."
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+              />
+            </div>
+
+            <select
+              className="role-select compact-role-select"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+            >
+              <option value="all">All Roles</option>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="company">Company</option>
+            </select>
+          </div>
         </div>
-      ) : (
-        <div className="table-wrap">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Current Role</th>
-                <th>Change Role</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((u) => {
-                const isSelf = u.id === currentUser?.id
-                return (
-                  <tr key={u.id}>
-                    <td>#{u.id}</td>
-                    <td>
-                      <div className="user-table-cell">
-                        <span className="user-avatar-sm">
-                          {u.name?.[0] || 'U'}
+
+        {loadingUsers ? (
+          <p className="page-message">Loading system users...</p>
+        ) : filteredUsers.length === 0 ? (
+          <div className="empty-state-box">
+            <p>No users found matching your search criteria.</p>
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '70px' }}>ID</th>
+                  <th style={{ width: '22%' }}>USER NAME</th>
+                  <th style={{ width: '35%' }}>EMAIL</th>
+                  <th style={{ width: '13%' }}>ROLE</th>
+                  <th style={{ width: '15%' }}>CHANGE ROLE</th>
+                  <th style={{ textAlign: 'center', width: '100px' }}>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.map((u) => {
+                  const isSelf = u.id === currentUser?.id
+                  return (
+                    <tr key={u.id}>
+                      <td>
+                        <span className="id-tag">#{u.id}</span>
+                      </td>
+                      <td>
+                        <div className="user-table-cell">
+                          <span className="user-avatar-sm">
+                            {u.name?.[0] || 'U'}
+                          </span>
+                          <strong className="user-display-name">{u.name}</strong>
+                        </div>
+                      </td>
+                      <td className="email-col">{u.email}</td>
+                      <td>
+                        <span className={`role-badge role-badge-${u.role}`}>
+                          {(u.role || 'user').toUpperCase()}
                         </span>
-                        <strong>{u.name}</strong>
-                      </div>
-                    </td>
-                    <td className="email-col">{u.email}</td>
-                    <td>
-                      <span className={`role-badge role-badge-${u.role}`}>
-                        {u.role}
-                      </span>
-                    </td>
-                    <td>
-                      <select
-                        className="role-select"
-                        value={pendingRoles[u.id] ?? u.role}
-                        disabled={isSelf}
-                        onChange={(event) =>
-                          handleRoleChange(u.id, event.target.value)
-                        }
-                      >
-                        <option value="user">user</option>
-                        <option value="admin">admin</option>
-                        <option value="company">company</option>
-                      </select>
-                    </td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn btn-danger"
-                        disabled={isSelf}
-                        onClick={() => handleDelete(u)}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                      </td>
+                      <td>
+                        <select
+                          className="role-select table-role-select"
+                          value={pendingRoles[u.id] ?? u.role}
+                          disabled={isSelf}
+                          onChange={(event) =>
+                            handleRoleChange(u.id, event.target.value)
+                          }
+                        >
+                          <option value="user">user</option>
+                          <option value="admin">admin</option>
+                          <option value="company">company</option>
+                        </select>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-sm btn-delete-action"
+                          disabled={isSelf}
+                          onClick={() => handleDelete(u)}
+                          title={isSelf ? 'Cannot delete your own account' : 'Delete user'}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

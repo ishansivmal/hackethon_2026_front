@@ -1,12 +1,9 @@
 export default function AdminReportsPage({ handleExportReport }) {
   return (
     <div className="tab-content">
-      <div className="content-header">
+      <div className="content-header align-center">
         <div>
           <h1>Reports & Analytics</h1>
-          <p className="subtitle">
-            Platform user acquisition metrics, application metrics, and data export.
-          </p>
         </div>
         <button
           type="button"

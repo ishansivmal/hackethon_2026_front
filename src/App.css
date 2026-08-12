@@ -544,18 +544,23 @@
    =================================================== */
 .admin-layout {
   display: flex;
-  min-height: calc(100vh - 70px);
+  min-height: calc(100vh - 65px);
   width: 100%;
 }
 
 .admin-sidebar {
   width: 270px;
+  height: calc(100vh - 65px);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   background: #14171d;
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
   flex-shrink: 0;
+  z-index: 10;
 }
 
 .sidebar-header {
@@ -686,6 +691,8 @@
 
 .admin-content {
   flex: 1;
+  min-width: 0;
+  width: 100%;
   padding: 32px;
   background: var(--bg);
   overflow-y: auto;
@@ -1092,6 +1099,182 @@
   border: 1px solid var(--border);
 }
 
+/* Header Align & Stat Badges */
+.content-header.align-center {
+  align-items: center;
+}
+
+.header-stat-badges {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+
+  strong {
+    color: var(--text-h);
+    font-weight: 700;
+  }
+
+  &.badge-active {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #10b981;
+
+    strong {
+      color: #10b981;
+    }
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+
+  &.dot-active {
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  }
+}
+
+/* Compact Search & Filter Toolbar */
+.compact-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: flex-start;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 280px;
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 14px;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.compact-search-input {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  padding: 9px 12px 9px 34px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--code-bg);
+  color: var(--text-h);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:focus {
+    border-color: var(--accent);
+    background: var(--bg);
+  }
+
+  &::placeholder {
+    color: var(--text);
+    opacity: 0.6;
+  }
+}
+
+.compact-role-select {
+  font: inherit;
+  font-size: 14px;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--code-bg);
+  color: var(--text-h);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: var(--accent);
+  }
+}
+
+.id-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.user-display-name {
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.table-role-select {
+  font-size: 13px;
+  padding: 5px 10px;
+}
+
+.btn-delete-action {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.margin-bottom-none {
+  margin-bottom: 0 !important;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.badge-warning-stat {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #f59e0b !important;
+
+  strong {
+    color: #f59e0b !important;
+  }
+}
+
+.company-avatar {
+  background: rgba(168, 85, 247, 0.2) !important;
+  color: #a855f7 !important;
+  font-size: 14px;
+}
+
 /* Media Queries for Admin Layout */
 @media (max-width: 900px) {
   .admin-layout {
@@ -1126,5 +1309,21 @@
   .admin-content {
     padding: 20px 16px;
   }
+
+  .compact-filters {
+    flex-direction: column;
+    align-items: stretch;
+
+    .search-input-wrapper {
+      max-width: 100%;
+    }
+  }
+
+  .card-header-flex {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
+
+
 

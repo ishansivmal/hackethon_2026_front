@@ -18,12 +18,9 @@ export default function AdminDashboardView({
 
   return (
     <div className="tab-content">
-      <div className="content-header">
+      <div className="content-header align-center">
         <div>
           <h1>Admin Dashboard</h1>
-          <p className="subtitle">
-            Welcome back, {currentUser?.name}! System performance overview.
-          </p>
         </div>
         <button type="button" className="btn btn-outline" onClick={fetchUsers}>
           🔄 Refresh Data
