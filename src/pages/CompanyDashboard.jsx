@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useAuth } from '../context/useAuth'
+import { getCompanyDashboard } from '../api/company'
 import PostInternship from '../components/company/PostInternship'
 import PostJob from '../components/company/PostJob'
 import PostProblem from '../components/company/PostProblem'
@@ -72,6 +73,20 @@ export default function CompanyDashboard() {
   const welcomeShown = useRef(false)
   const [activeView, setActiveView] = useState('internship')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [dashboard, setDashboard] = useState(null)
+
+  const loadDashboard = useCallback(async () => {
+    try {
+      const { data } = await getCompanyDashboard()
+      setDashboard(data)
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to load dashboard data')
+    }
+  }, [])
+
+  useEffect(() => {
+    loadDashboard()
+  }, [loadDashboard])
 
   useEffect(() => {
     if (!loading && !user) navigate('/login')
@@ -172,17 +187,17 @@ export default function CompanyDashboard() {
 
         {/* Stats row */}
         <div className="cd-stats-row">
-          <StatCard icon="🎓" label="Internships Posted" value="0" color="#0D47A1" />
-          <StatCard icon="💼" label="Jobs Posted"        value="0" color="#0D47A1" />
-          <StatCard icon="🔬" label="Problems Submitted" value="0" color="#0D47A1" />
-          <StatCard icon="👁️" label="Total Views"        value="0" color="#0D47A1" />
+          <StatCard icon="🎓" label="Internships Posted" value={dashboard?.counts?.internships ?? 0} color="#0D47A1" />
+          <StatCard icon="💼" label="Jobs Posted"        value={dashboard?.counts?.jobs ?? 0} color="#0D47A1" />
+          <StatCard icon="🔬" label="Problems Submitted" value={dashboard?.counts?.problems ?? 0} color="#0D47A1" />
+          <StatCard icon="📨" label="Total Applications" value={dashboard?.counts?.applications ?? 0} color="#0D47A1" />
         </div>
 
         {/* Content panel */}
         <div className="cd-content">
-          {activeView === 'internship' && <PostInternship />}
-          {activeView === 'job'        && <PostJob />}
-          {activeView === 'problem'    && <PostProblem />}
+          {activeView === 'internship' && <PostInternship items={dashboard?.internships ?? []} onPosted={loadDashboard} />}
+          {activeView === 'job'        && <PostJob        items={dashboard?.jobs ?? []}        onPosted={loadDashboard} />}
+          {activeView === 'problem'    && <PostProblem    items={dashboard?.problems ?? []}    onPosted={loadDashboard} />}
         </div>
 
       </div>
