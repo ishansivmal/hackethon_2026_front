@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { postInternship } from '../../api/company'
+import ImageSelector from './ImageSelector'
 
 const INTERN_TYPES = ['PHYSICAL', 'ONLINE', 'HYBRID']
 
 const INIT = {
   title: '',
-  photo: '',
   description: '',
   requirements: '',
   duration: '',
@@ -14,6 +14,8 @@ const INIT = {
   internType: 'PHYSICAL',
   isPaid: false,
   deadline: '',
+  photo: null,
+  photoPreview: '',
 }
 
 function Field({ label, hint, children }) {
@@ -35,12 +37,33 @@ export default function PostInternship() {
     setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
+  const handlePhoto = (file) => {
+    if (form.photoPreview) URL.revokeObjectURL(form.photoPreview)
+    setForm(prev => ({
+      ...prev,
+      photo: file,
+      photoPreview: file ? URL.createObjectURL(file) : '',
+    }))
+  }
+
   const submit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
     try {
-      await postInternship(form)
+      const fd = new FormData()
+      fd.append('title', form.title)
+      fd.append('description', form.description)
+      fd.append('requirements', form.requirements)
+      fd.append('duration', form.duration)
+      fd.append('location', form.location)
+      fd.append('internType', form.internType)
+      fd.append('isPaid', form.isPaid)
+      fd.append('deadline', form.deadline)
+      if (form.photo) fd.append('photo', form.photo)
+
+      await postInternship(fd)
       toast.success(`Internship "${form.title}" posted successfully! 🎓`)
+      if (form.photoPreview) URL.revokeObjectURL(form.photoPreview)
       setForm(INIT)
     } catch (err) {
       const message = err.response?.data?.message || 'Failed to post internship. Please try again.'
@@ -75,14 +98,11 @@ export default function PostInternship() {
             />
           </Field>
 
-          <Field label="Photo URL" hint="Paste a direct image link or CDN URL">
-            <input
+          <Field label="Internship Photo" hint="Upload an image for the internship listing">
+            <ImageSelector
               id="intern-photo"
-              className="cd-input"
-              name="photo"
-              placeholder="https://example.com/image.jpg"
-              value={form.photo}
-              onChange={handle}
+              preview={form.photoPreview}
+              onChange={handlePhoto}
             />
           </Field>
 
