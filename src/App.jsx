@@ -51,7 +51,11 @@ function App() {
           <Route path="/company/dashboard" element={<CompanyDashboard />} />
           <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} />
           <Route path="/admin/*" element={<AdminRoute />}>
+<<<<<<< HEAD
             <Route path="*" element={<AdminPage />} />
+=======
+            <Route path="*" element={<AdminDashboard />} />
+>>>>>>> 4bba83d54b4a5649c798ad4e02972a2918a5a7f4
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

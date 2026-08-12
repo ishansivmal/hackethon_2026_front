@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { postJob } from '../../api/company'
 import ImageSelector from './ImageSelector'
+import PostedList from './PostedList'
+import EditItemModal from './EditItemModal'
+import deletePosted from '../../utils/deletePosted'
 
 const JOB_TYPES = ['REMOTE', 'PHYSICAL', 'HYBRID']
 
@@ -25,9 +28,14 @@ function Field({ label, hint, children }) {
   )
 }
 
-export default function PostJob() {
+export default function PostJob({ items = [], onPosted }) {
   const [form, setForm] = useState(INIT)
   const [submitting, setSubmitting] = useState(false)
+  const [editing, setEditing] = useState(null)
+
+  const handleDelete = async (job) => {
+    if (await deletePosted('job', job)) onPosted?.()
+  }
 
   const handle = (e) => {
     const { name, value } = e.target
@@ -59,6 +67,7 @@ export default function PostJob() {
       toast.success(`Job "${form.jobPosition}" posted successfully! 💼`)
       if (form.imagePreview) URL.revokeObjectURL(form.imagePreview)
       setForm(INIT)
+      onPosted?.()
     } catch (err) {
       const message = err.response?.data?.message || 'Failed to post job. Please try again.'
       toast.error(message)
@@ -171,6 +180,55 @@ export default function PostJob() {
             : <><span>💼</span> Post Job</>}
         </button>
       </form>
+
+      <PostedList
+        icon="💼"
+        title="My Posted Jobs"
+        subtitle="Only jobs published by your account are shown here."
+        emptyText="You haven't posted any jobs yet."
+        items={items}
+        renderItem={(job) => (
+          <article key={job.job_ID ?? job.id} className="cd-posted-card">
+            {job.photoUrl && (
+              <img
+                className="cd-posted-photo"
+                src={job.photoUrl}
+                alt={job.position}
+              />
+            )}
+            <div className="cd-posted-body">
+              <h4 className="cd-posted-name">{job.position}</h4>
+              <p className="cd-posted-meta">📍 {job.location} · {job.jobType}</p>
+              {job.salary && <p className="cd-posted-meta">💰 {job.salary}</p>}
+              <span className="cd-posted-apps">📨 {job.applications?.length ?? 0} applications</span>
+              <div className="cd-posted-actions">
+                <button
+                  type="button"
+                  className="cd-posted-btn cd-posted-btn--edit"
+                  onClick={() => setEditing(job)}
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  type="button"
+                  className="cd-posted-btn cd-posted-btn--delete"
+                  onClick={() => handleDelete(job)}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          </article>
+        )}
+      />
+      {editing && (
+        <EditItemModal
+          type="job"
+          item={editing}
+          onClose={() => setEditing(null)}
+          onSaved={onPosted}
+        />
+      )}
     </div>
   )
 }
