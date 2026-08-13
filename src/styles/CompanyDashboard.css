@@ -352,13 +352,57 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%;
 }
 
 .cd-view-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
   gap: 14px;
   padding: 24px 0 0;
+  flex-wrap: wrap;
+}
+
+.cd-view-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* ── Create button (opens the create popup) ─────────────────────────────── */
+.cd-create-btn {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 11px;
+  cursor: pointer;
+  background: var(--brand-dark);
+  color: var(--bg);
+  box-shadow: 0 4px 14px rgba(13, 71, 161, 0.25);
+  transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+
+.cd-create-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(13, 71, 161, 0.35);
+}
+
+.cd-create-btn:active {
+  transform: translateY(0);
+}
+
+.cd-create-btn-plus {
+  font-size: 18px;
+  line-height: 1;
 }
 
 .cd-view-emoji {
@@ -380,6 +424,210 @@
   color: var(--text);
   margin: 0;
   line-height: 1.5;
+}
+
+/* ── Applied Applications category tabs (Angular Material style) ─────────── */
+.cd-cat-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.cd-cat-tab {
+  font: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text);
+  cursor: pointer;
+  opacity: 0.75;
+  transition: color 0.2s, border-color 0.2s, opacity 0.2s;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.cd-cat-tab:hover {
+  color: var(--text-h);
+  opacity: 1;
+}
+
+.cd-cat-tab--active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  opacity: 1;
+  font-weight: 700;
+}
+
+.cd-cat-tab-icon {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.cd-cat-tab-label {
+  font-size: 14px;
+  font-weight: inherit;
+}
+
+/* ── Applicant cards ─────────────────────────────────────────────────────── */
+.cd-app-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.cd-app-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.cd-app-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+  border-color: var(--accent-border);
+}
+
+.cd-app-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cd-app-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  border: 1.5px solid var(--accent-border);
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.cd-app-who {
+  min-width: 0;
+}
+
+.cd-app-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-h);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.cd-app-email {
+  font-size: 13px;
+  color: var(--text);
+  margin: 2px 0 0;
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cd-app-posted {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cd-app-posted strong {
+  color: var(--text-h);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.cd-app-cv {
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.cd-app-cv:hover {
+  text-decoration: underline;
+}
+
+.cd-app-card--selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.cd-app-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.cd-app-toggle {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: 1.5px solid #10b981;
+  background: #10b981;
+  color: #fff;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.15s, background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.cd-app-toggle:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.cd-app-toggle:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.cd-app-status {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 700;
+  color: #d97706;
+  background: rgba(217, 119, 6, 0.12);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.cd-app-status--selected {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
 }
 
 /* ── Problem banner ──────────────────────────────────────────────────────── */
