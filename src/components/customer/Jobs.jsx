@@ -34,7 +34,7 @@ export default function Jobs() {
   return (
     <section className="customer-page" style={{ padding: '2rem' }}>
       <h1>Available Jobs</h1>
-      
+
       {loading ? (
         <p>Loading jobs...</p>
       ) : jobs.length > 0 ? (

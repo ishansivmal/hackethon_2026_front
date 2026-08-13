@@ -15,9 +15,9 @@ export default function ApplyButton({ itemId, itemType, hasApplied }) {
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (file && file.type === 'application/pdf') {
-       setSelectedFile(file)
+      setSelectedFile(file)
     } else {
-       toast.error("Please upload a valid PDF document.")
+      toast.error("Please upload a valid PDF document.")
     }
   }
 
@@ -48,7 +48,7 @@ export default function ApplyButton({ itemId, itemType, hasApplied }) {
       else apiCall = applyForProblem
 
       await apiCall(itemId, formData)
-      
+
       toast.success("Application successfully sent!")
       setSelectedFile(null)
       setIsModalOpen(false)
@@ -63,7 +63,7 @@ export default function ApplyButton({ itemId, itemType, hasApplied }) {
 
   return (
     <>
-      <button 
+      <button
         onClick={handleApplyClick}
         disabled={isActuallyApplied}
         style={{
@@ -88,11 +88,11 @@ export default function ApplyButton({ itemId, itemType, hasApplied }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}>
           <div style={{
-            backgroundColor: '#1a1a2e', padding: '2rem', borderRadius: '8px', 
+            backgroundColor: '#1a1a2e', padding: '2rem', borderRadius: '8px',
             width: '90%', maxWidth: '400px', border: '1px solid #444'
           }}>
-            <h2 style={{marginTop: 0}}>Upload CV</h2>
-            
+            <h2 style={{ marginTop: 0 }}>Upload CV</h2>
+
             {!selectedFile ? (
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem' }}>Select PDF file:</label>
@@ -101,7 +101,7 @@ export default function ApplyButton({ itemId, itemType, hasApplied }) {
             ) : (
               <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#0f0f1c', borderRadius: '4px' }}>
                 <p style={{ margin: '0 0 0.5rem 0', wordBreak: 'break-all' }}><strong>Selected:</strong> {selectedFile.name}</p>
-                <button 
+                <button
                   onClick={() => setSelectedFile(null)}
                   style={{
                     backgroundColor: 'transparent',
@@ -113,9 +113,9 @@ export default function ApplyButton({ itemId, itemType, hasApplied }) {
                 </button>
               </div>
             )}
-            
+
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 style={{
                   backgroundColor: 'transparent', border: '1px solid #aaa',
@@ -124,12 +124,12 @@ export default function ApplyButton({ itemId, itemType, hasApplied }) {
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleSend}
                 disabled={isLoading}
                 style={{
                   backgroundColor: '#4da6ff', border: 'none',
-                  color: '#1a1a2e', padding: '0.5rem 1.5rem', borderRadius: '4px', 
+                  color: '#1a1a2e', padding: '0.5rem 1.5rem', borderRadius: '4px',
                   fontWeight: 'bold', cursor: isLoading ? 'not-allowed' : 'pointer',
                   opacity: isLoading ? 0.7 : 1
                 }}

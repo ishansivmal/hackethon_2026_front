@@ -32,7 +32,7 @@ export default function ItemCard({ item, type, hasApplied }) {
           }}
         />
       )}
-      
+
       {isProblem ? (
         <>
           <p style={{ margin: 0, fontSize: '1rem', color: '#fff' }}>
@@ -58,7 +58,7 @@ export default function ItemCard({ item, type, hasApplied }) {
           <p style={{ margin: 0, fontSize: '0.9rem' }}>
             <strong>Location:</strong> {item.location} {item.internType ? `(${item.internType})` : item.jobType ? `(${item.jobType})` : ''}
           </p>
-          
+
           {isJob && item.salary && (
             <p style={{ margin: 0, fontSize: '0.9rem', color: '#4ade80' }}>
               <strong>Salary:</strong> ${item.salary}
@@ -82,9 +82,9 @@ export default function ItemCard({ item, type, hasApplied }) {
       )}
 
       {/* Everyone gets an Apply Button, but tailored if needed */}
-      <ApplyButton 
-        itemId={item.id || item.job_ID || item.problem_ID} 
-        itemType={type} 
+      <ApplyButton
+        itemId={item.id || item.job_ID || item.problem_ID}
+        itemType={type}
         hasApplied={hasApplied}
       />
     </div>

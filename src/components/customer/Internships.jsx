@@ -33,7 +33,7 @@ export default function Internships() {
   return (
     <section className="customer-page" style={{ padding: '2rem' }}>
       <h1>Available Internships</h1>
-      
+
       {loading ? (
         <p>Loading internships...</p>
       ) : internships.length > 0 ? (

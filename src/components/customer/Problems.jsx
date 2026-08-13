@@ -33,7 +33,7 @@ export default function Problems() {
   return (
     <section className="customer-page" style={{ padding: '2rem' }}>
       <h1>Available Problems to Solve</h1>
-      
+
       {loading ? (
         <p>Loading problems...</p>
       ) : problems.length > 0 ? (
