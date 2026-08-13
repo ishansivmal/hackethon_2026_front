@@ -2,7 +2,17 @@ import { useCallback, useEffect, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
-import { createUser, deleteUser, getUsers, updateUser, updateUserRole } from '../api/admin'
+import {
+  createCompany as createCompanyApi,
+  createUser,
+  deleteCompany as deleteCompanyApi,
+  deleteUser,
+  getCompanies,
+  getUsers,
+  updateCompany as updateCompanyApi,
+  updateCompanyStatus as updateCompanyStatusApi,
+  updateUser,
+} from '../api/admin'
 import { useAuth } from '../context/useAuth'
 
 import AdminSidebar from '../components/admin/AdminSidebar'
@@ -17,16 +27,10 @@ export default function AdminPage() {
   // Users state
   const [users, setUsers] = useState([])
   const [loadingUsers, setLoadingUsers] = useState(true)
-  const [pendingRoles, setPendingRoles] = useState({})
 
   // Companies state
-  const [companies, setCompanies] = useState([
-    { id: 101, name: 'TechCorp Solutions', email: 'contact@techcorp.io', status: 'Pending', category: 'Software & IT', registeredDate: '2026-08-10' },
-    { id: 102, name: 'Apex Innovations', email: 'hr@apexinno.com', status: 'Approved', category: 'Engineering', registeredDate: '2026-08-08' },
-    { id: 103, name: 'Quantum Cloud Ltd', email: 'jobs@quantumcloud.com', status: 'Approved', category: 'Cloud Infrastructure', registeredDate: '2026-08-05' },
-    { id: 104, name: 'Nexus Logistics', email: 'careers@nexuslog.com', status: 'Pending', category: 'Supply Chain', registeredDate: '2026-08-11' },
-    { id: 105, name: 'BioGenix Labs', email: 'info@biogenix.org', status: 'Suspended', category: 'Healthcare', registeredDate: '2026-07-29' },
-  ])
+  const [companies, setCompanies] = useState([])
+  const [loadingCompanies, setLoadingCompanies] = useState(true)
 
   // Notifications state
   const [notifications, setNotifications] = useState([
@@ -48,9 +52,23 @@ export default function AdminPage() {
     }
   }, [])
 
+  const fetchCompanies = useCallback(async () => {
+    setLoadingCompanies(true)
+    try {
+      const response = await getCompanies()
+      setCompanies(response.data.companies || [])
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to load companies'
+      toast.error(msg)
+    } finally {
+      setLoadingCompanies(false)
+    }
+  }, [])
+
   useEffect(() => {
     fetchUsers()
-  }, [fetchUsers])
+    fetchCompanies()
+  }, [fetchUsers, fetchCompanies])
 
   const handleCreateUser = async (userData) => {
     try {
@@ -104,58 +122,6 @@ export default function AdminPage() {
     }
   }
 
-  const handleRoleChange = async (id, role) => {
-    const targetUser = users.find((item) => item.id === id)
-    if (!targetUser || role === targetUser.role) {
-      setPendingRoles((prev) => ({ ...prev, [id]: undefined }))
-      return
-    }
-
-    setPendingRoles((prev) => ({ ...prev, [id]: role }))
-
-    const result = await Swal.fire({
-      title: 'Change user role?',
-      html: `Set <strong>${targetUser.email}</strong> as <strong>${role}</strong>?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#65DCD5',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, update',
-      cancelButtonText: 'Cancel',
-      reverseButtons: true,
-    })
-
-    if (!result.isConfirmed) {
-      setPendingRoles((prev) => ({ ...prev, [id]: undefined }))
-      return
-    }
-
-    try {
-      const response = await updateUserRole(id, role)
-      setUsers((prev) =>
-        prev.map((item) => (item.id === id ? response.data.user : item)),
-      )
-      setPendingRoles((prev) => ({ ...prev, [id]: undefined }))
-      toast.success(`Role updated for ${response.data.user.email}`)
-      Swal.fire({
-        title: 'Role updated!',
-        text: `${response.data.user.email} is now ${response.data.user.role}.`,
-        icon: 'success',
-        confirmButtonColor: '#65DCD5',
-      })
-    } catch (err) {
-      setPendingRoles((prev) => ({ ...prev, [id]: undefined }))
-      const msg = err.response?.data?.message || 'Failed to update role'
-      toast.error(msg)
-      Swal.fire({
-        title: 'Error',
-        text: msg,
-        icon: 'error',
-        confirmButtonColor: '#65DCD5',
-      })
-    }
-  }
-
   const handleDelete = async (user) => {
     const result = await Swal.fire({
       title: 'Delete user?',
@@ -193,11 +159,91 @@ export default function AdminPage() {
     }
   }
 
-  const handleUpdateCompanyStatus = (id, status) => {
-    setCompanies((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status } : c)),
-    )
-    toast.success(`Company status updated to ${status}`)
+  const handleCreateCompany = async (companyData) => {
+    try {
+      const response = await createCompanyApi(companyData)
+      setCompanies((prev) => [...prev, response.data.company])
+      toast.success(`Company "${response.data.company.name}" created successfully!`)
+      Swal.fire({
+        title: 'Company Created!',
+        text: `${response.data.company.name} added to database.`,
+        icon: 'success',
+        confirmButtonColor: '#65DCD5',
+      })
+      return true
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to create company'
+      toast.error(msg)
+      Swal.fire({ title: 'Error', text: msg, icon: 'error', confirmButtonColor: '#65DCD5' })
+      return false
+    }
+  }
+
+  const handleUpdateCompany = async (id, companyData) => {
+    try {
+      const response = await updateCompanyApi(id, companyData)
+      setCompanies((prev) =>
+        prev.map((c) => (c.id === id ? response.data.company : c)),
+      )
+      toast.success(`Company details updated!`)
+      Swal.fire({
+        title: 'Company Saved!',
+        text: `Details updated in database.`,
+        icon: 'success',
+        confirmButtonColor: '#65DCD5',
+      })
+      return true
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to update company'
+      toast.error(msg)
+      Swal.fire({ title: 'Error', text: msg, icon: 'error', confirmButtonColor: '#65DCD5' })
+      return false
+    }
+  }
+
+  const handleDeleteCompany = async (company) => {
+    const result = await Swal.fire({
+      title: 'Delete company record?',
+      text: `Are you sure you want to delete "${company.name}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    })
+
+    if (!result.isConfirmed) return
+
+    try {
+      await deleteCompanyApi(company.id)
+      setCompanies((prev) => prev.filter((c) => c.id !== company.id))
+      toast.success(`Company "${company.name}" deleted`)
+      Swal.fire({
+        title: 'Deleted!',
+        text: `Company "${company.name}" was removed from database.`,
+        icon: 'success',
+        confirmButtonColor: '#65DCD5',
+      })
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to delete company'
+      toast.error(msg)
+      Swal.fire({ title: 'Error', text: msg, icon: 'error', confirmButtonColor: '#65DCD5' })
+    }
+  }
+
+  const handleUpdateCompanyStatus = async (id, status) => {
+    try {
+      const response = await updateCompanyStatusApi(id, status)
+      setCompanies((prev) =>
+        prev.map((c) => (c.id === id ? response.data.company : c)),
+      )
+      toast.success(`Company status updated to ${status}`)
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to update company status'
+      toast.error(msg)
+    }
   }
 
   const handleSendNotification = (e) => {
@@ -266,6 +312,10 @@ export default function AdminPage() {
             element={
               <AdminCompaniesPage
                 companies={companies}
+                loadingCompanies={loadingCompanies}
+                handleCreateCompany={handleCreateCompany}
+                handleUpdateCompany={handleUpdateCompany}
+                handleDeleteCompany={handleDeleteCompany}
                 handleUpdateCompanyStatus={handleUpdateCompanyStatus}
               />
             }
