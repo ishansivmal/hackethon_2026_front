@@ -1,55 +1,42 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import './Home.css'
 
 export default function Home() {
   const location = useLocation()
 
   return (
-    <section className="customer-layout" style={{ paddingTop: '2rem' }}>
-      <nav
-        className="home-nav"
-        style={{
-          display: 'flex',
-          gap: '2rem',
-          borderBottom: '1px solid #444',
-          paddingBottom: '1.5rem',
-          marginBottom: '2rem',
-          justifyContent: 'center',
-          fontSize: '1.1rem'
-        }}
-      >
+    <section className="customer-layout">
+      <div className="home-header">
+        <h1 className="home-title">Discover Opportunities</h1>
+        <p className="home-subtitle">
+          Explore the latest internships, jobs, and coding challenges tailored for you.
+        </p>
+      </div>
+
+      <nav className="home-nav-container">
         <NavLink
           to="/internships"
-          style={({ isActive }) => ({
-            color: isActive || location.pathname === '/' ? '#fff' : '#4da6ff',
-            textDecoration: isActive || location.pathname === '/' ? 'underline' : 'none',
-            fontWeight: 'bold'
-          })}
+          className={({ isActive }) => 
+            `home-nav-link ${isActive || location.pathname === '/' ? 'active' : ''}`
+          }
         >
           Internships
         </NavLink>
         <NavLink
           to="/jobs"
-          style={({ isActive }) => ({
-            color: isActive ? '#fff' : '#4da6ff',
-            textDecoration: isActive ? 'underline' : 'none',
-            fontWeight: 'bold'
-          })}
+          className={({ isActive }) => `home-nav-link ${isActive ? 'active' : ''}`}
         >
           Jobs
         </NavLink>
         <NavLink
           to="/problems"
-          style={({ isActive }) => ({
-            color: isActive ? '#fff' : '#4da6ff',
-            textDecoration: isActive ? 'underline' : 'none',
-            fontWeight: 'bold'
-          })}
+          className={({ isActive }) => `home-nav-link ${isActive ? 'active' : ''}`}
         >
           Problems
         </NavLink>
       </nav>
 
-      <div className="home-content">
+      <div className="home-content-wrapper">
         <Outlet />
       </div>
     </section>
