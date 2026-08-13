@@ -82,8 +82,12 @@ function ApplicantCard({ row, icon, onUpdated, aiScore }) {
 
     setUpdating(true)
     try {
-      await updateApplicationSelection(row.type, applicationId(row), true)
-      toast.success('Applicant selected')
+      const { data } = await updateApplicationSelection(row.type, applicationId(row), true)
+      if (data?.emailSent) {
+        toast.success('Applicant selected and notified by email')
+      } else {
+        toast.warning('Applicant selected, but the notification email could not be sent')
+      }
       onUpdated?.()
     } catch (err) {
       const message = err.response?.data?.message || 'Failed to update application'
@@ -215,21 +219,35 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
   const rows = buckets[active]
   const supportsAi = AI_ENABLED.includes(active)
 
-  const showRankingSummary = (list) => {
-    const rowsHtml = list
-      .map((c) => {
-        const color = recColor(c.recommendation)
-        return `
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(13,71,161,0.15);border-radius:10px;margin-bottom:8px;text-align:left;background:#f8fafc;">
-            <div style="min-width:0;">
-              <strong style="color:#0D47A1;">#${c.rank}</strong>
-              <span style="font-weight:700;color:#111827;"> ${escapeHtml(c.name)}</span>
-              <div style="font-size:13px;color:#4b5563;margin-top:2px;">${escapeHtml(c.summary)}</div>
-              <div style="margin-top:6px;">
-                <span style="display:inline-block;font-size:12px;font-weight:600;color:${color};border:1px solid ${color};border-radius:999px;padding:2px 10px;">${escapeHtml(c.recommendation)}</span>
+  const showRankingSummary = (groups) => {
+    const sectionsHtml = groups
+      .map((group) => {
+        const rowsHtml = group.candidates
+          .map((c) => {
+            const color = recColor(c.recommendation)
+            return `
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(13,71,161,0.15);border-radius:10px;margin-bottom:8px;text-align:left;background:#f8fafc;">
+                <div style="min-width:0;">
+                  <strong style="color:#0D47A1;">#${c.rank}</strong>
+                  <span style="font-weight:700;color:#111827;"> ${escapeHtml(c.name)}</span>
+                  <div style="font-size:13px;color:#4b5563;margin-top:2px;">${escapeHtml(c.summary)}</div>
+                  <div style="margin-top:6px;">
+                    <span style="display:inline-block;font-size:12px;font-weight:600;color:${color};border:1px solid ${color};border-radius:999px;padding:2px 10px;">${escapeHtml(c.recommendation)}</span>
+                  </div>
+                </div>
+                <div style="flex-shrink:0;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#0D47A1;color:#fff;font-weight:700;font-size:16px;">${c.score}%</div>
               </div>
+            `
+          })
+          .join('')
+
+        return `
+          <div style="margin-bottom:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;">
+              <strong style="color:#0D47A1;font-size:15px;">${escapeHtml(group.listingTitle)}</strong>
+              <span style="font-size:12px;color:#4b5563;background:#e0e7ff;border-radius:999px;padding:2px 10px;flex-shrink:0;">${group.candidates.length} candidate${group.candidates.length === 1 ? '' : 's'}</span>
             </div>
-            <div style="flex-shrink:0;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#0D47A1;color:#fff;font-weight:700;font-size:16px;">${c.score}%</div>
+            ${rowsHtml}
           </div>
         `
       })
@@ -238,9 +256,10 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
     Swal.fire({
       title: 'Best Candidate Suggestions',
       html: `
-        <div style="max-height:420px;overflow-y:auto;">${rowsHtml}</div>
+        <div style="max-height:420px;overflow-y:auto;">${sectionsHtml}</div>
         <p style="font-size:12px;color:#9ca3af;margin:12px 0 0;text-align:left;">
-          Scores are AI-generated from each candidate's CV against your requirements.
+          Candidates are grouped by the ${active} they applied to and ranked best-first within each group.
+          Scores are AI-generated from each candidate's CV against that listing's requirements.
           Click any AI badge on a card for the detailed analysis.
         </p>`,
       width: 640,
@@ -254,6 +273,7 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
 
     setRanking(true)
     const accumulated = {}
+    const scoreMap = {}
     const listingItems = active === 'internship' ? internships : jobs
 
     for (const item of listingItems) {
@@ -263,21 +283,38 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
       const listingId = active === 'internship' ? item.id : item.job_ID
       try {
         const { data } = await rankApplicants(active, listingId)
+        const group = accumulated[listingId] ?? {
+          listingId,
+          listingTitle:
+            data.listing?.title || item.title || item.position || 'Untitled listing',
+          candidates: [],
+        }
         ;(data.candidates ?? []).forEach((c, idx) => {
-          accumulated[`${active}-${c.id}`] = { ...c, rank: idx + 1 }
+          group.candidates.push({ ...c, rank: idx + 1 })
+          scoreMap[`${active}-${c.id}`] = { ...c, rank: idx + 1 }
         })
+        if (group.candidates.length) accumulated[listingId] = group
       } catch (err) {
         const msg = err.response?.data?.message || 'Failed to rank applicants'
         toast.warning(msg)
       }
     }
 
-    setScores(accumulated)
+    setScores(scoreMap)
     setRanking(false)
 
-    const list = Object.values(accumulated).sort((a, b) => b.score - a.score)
-    if (list.length) {
-      showRankingSummary(list)
+    const groups = Object.values(accumulated)
+      .map((g) => ({
+        ...g,
+        candidates: g.candidates.sort((a, b) => b.score - a.score),
+      }))
+      .sort(
+        (a, b) =>
+          (b.candidates[0]?.score ?? 0) - (a.candidates[0]?.score ?? 0)
+      )
+
+    if (groups.length) {
+      showRankingSummary(groups)
     } else {
       toast.info('No candidates could be ranked. Make sure applicants have uploaded CVs.')
     }
