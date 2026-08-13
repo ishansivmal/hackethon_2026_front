@@ -9,6 +9,7 @@ import Signup from './pages/Signup'
 import ConfirmEmail from './pages/ConfirmEmail'
 import CompanyDashboard from './pages/CompanyDashboard'
 import JobSeekerDashboard from './pages/customerPage'
+import UserPanel from './pages/UserPanel'
 import AdminPage from './pages/AdminPage'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -50,6 +51,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardRedirect />} />
           <Route path="/company/dashboard" element={<CompanyDashboard />} />
           <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} />
+          <Route path="/user-panel/*" element={<UserPanel />} />
           <Route path="/admin/*" element={<AdminRoute />}>
             <Route path="*" element={<AdminPage />} />
           </Route>
