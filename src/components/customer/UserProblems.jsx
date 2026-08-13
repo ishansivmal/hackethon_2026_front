@@ -1,22 +1,47 @@
-  import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { getAppliedProblems } from '../../api/customerapi'
+import AppliedItemCard from './AppliedItemCard'
 
-  export default function UserProblems() {
-    const [mockData] = useState([
-      { id: 1, title: 'Optimize Database Query', status: 'In Review' },
-      { id: 2, title: 'Refactor Authentication', status: 'Pending' }
-    ])
+export default function UserProblems() {
+  const [applications, setApplications] = useState([])
+  const [loading, setLoading] = useState(true)
 
-    return (
-      <div>
-        <h2 style={{ marginBottom: '1.5rem', fontSize: '1.8rem' }}>Applied Problems</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {mockData.map(item => (
-            <div key={item.id} style={{ padding: '1rem', border: '1px solid #ccc', borderRadius: '8px', background: '#fff' }}>
-              <h3 style={{ margin: '0 0 0.5rem', color: '#333' }}>{item.title}</h3>
-              <p style={{ margin: 0, color: '#888' }}>Status: {item.status}</p>
-            </div>
-          ))}
+  useEffect(() => {
+    const fetchApplied = async () => {
+      try {
+        const response = await getAppliedProblems()
+        setApplications(response.data || [])
+      } catch (error) {
+        console.error("Error fetching applied problems:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchApplied()
+  }, [])
+
+  return (
+    <div className="cd-view">
+      <div className="cd-view-header">
+        <div className="cd-view-heading">
+          <div>
+            <h2 className="cd-view-title">My Problems</h2>
+            <p className="cd-view-sub">Problems you have applied to, your submitted solution and status.</p>
+          </div>
         </div>
       </div>
-    )
-  }
+
+      {loading ? (
+        <p className="cd-posted-empty">Loading your applications...</p>
+      ) : applications.length > 0 ? (
+        <div className="up-view-grid">
+          {applications.map((application) => (
+            <AppliedItemCard key={application.applied_problem_ID} application={application} type="problem" />
+          ))}
+        </div>
+      ) : (
+        <p className="cd-posted-empty">You haven't applied to any problems yet.</p>
+      )}
+    </div>
+  )
+}

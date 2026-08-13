@@ -1,18 +1,30 @@
 import { useState } from 'react'
 import Swal from 'sweetalert2'
+import {
+  FaBuilding,
+  FaHourglassHalf,
+  FaCheckCircle,
+  FaBan,
+  FaEye,
+  FaPencilAlt,
+  FaTrashAlt,
+  FaRecycle,
+} from 'react-icons/fa'
 
 const STATUS_CONFIG = {
-  all: { label: 'ALL', icon: '🏢', color: '#65DCD5', bg: 'rgba(101, 220, 213, 0.15)', border: 'rgba(101, 220, 213, 0.4)' },
-  pending: { label: 'PENDING', icon: '⏳', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)' },
-  approved: { label: 'APPROVED', icon: '✅', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.4)' },
-  suspended: { label: 'SUSPENDED', icon: '⛔', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.4)' },
+  all: { label: 'ALL', icon: <FaBuilding />, color: '#2196F3', bg: 'rgba(33, 150, 243, 0.12)', border: 'rgba(33, 150, 243, 0.4)' },
+  pending: { label: 'PENDING', icon: <FaHourglassHalf />, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)' },
+  approved: { label: 'APPROVED', icon: <FaCheckCircle />, color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.4)' },
+  suspended: { label: 'SUSPENDED', icon: <FaBan />, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.4)' },
 }
 
 export default function AdminCompaniesPage({
   companies,
   loadingCompanies,
+  handleCreateCompany,
   handleUpdateCompany,
   handleDeleteCompany,
+  handleUpdateCompanyStatus,
 }) {
   const [companyFilter, setCompanyFilter] = useState('all')
 
@@ -40,7 +52,7 @@ export default function AdminCompaniesPage({
   // View Company Details Modal via SweetAlert
   const handleViewCompany = (c) => {
     Swal.fire({
-      title: `<h3 style="margin: 0; color: #1e293b;">🏢 ${c.name}</h3>`,
+      title: `<h3 style="margin: 0; color: #1e293b;">${c.name}</h3>`,
       icon: 'info',
       html: `
         <div style="text-align: left; font-size: 14px; line-height: 1.8; color: #334155; padding: 10px 0;">
@@ -50,11 +62,83 @@ export default function AdminCompaniesPage({
           <div style="margin-bottom: 8px;"><strong>Status:</strong> <span style="font-weight: bold; text-transform: uppercase;">${c.status}</span></div>
           <div style="margin-bottom: 8px;"><strong>Location:</strong> ${c.location || 'N/A'}</div>
           <div style="margin-bottom: 8px;"><strong>Website:</strong> ${c.website ? `<a href="${c.website}" target="_blank" rel="noopener noreferrer">${c.website}</a>` : 'N/A'}</div>
+          <div style="margin-bottom: 8px;"><strong>Description:</strong> ${c.description || 'N/A'}</div>
           <div style="margin-bottom: 8px;"><strong>Registered Date:</strong> ${formatDate(c.createdAt || c.registeredDate)}</div>
         </div>
       `,
       confirmButtonText: 'Close Details',
-      confirmButtonColor: '#65DCD5',
+      confirmButtonColor: '#2196F3',
+    })
+  }
+
+  // Create New Company Modal via SweetAlert
+  const handleCreateCompanyModal = () => {
+    Swal.fire({
+      title: 'Create New Company',
+      html: `
+        <div style="text-align: left; font-size: 13px; font-family: inherit;">
+          <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Company Name *</label>
+          <input id="swal-new-company-name" class="swal2-input" placeholder="e.g. Acme Corp" style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;">
+
+          <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Email Address *</label>
+          <input id="swal-new-company-email" type="email" class="swal2-input" placeholder="contact@acme.com" style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;">
+
+          <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Category</label>
+          <input id="swal-new-company-category" class="swal2-input" value="Software & IT" style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;">
+
+          <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Website</label>
+          <input id="swal-new-company-website" class="swal2-input" placeholder="https://acme.com" style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;">
+
+          <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Location</label>
+          <input id="swal-new-company-location" class="swal2-input" placeholder="City, Country" style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;">
+
+          <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Status</label>
+          <select id="swal-new-company-status" class="swal2-input" style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;">
+            <option value="Pending" selected>Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Suspended">Suspended</option>
+          </select>
+
+          <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Description</label>
+          <textarea id="swal-new-company-description" class="swal2-input" rows="3" placeholder="Short company description" style="margin: 0; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Create Company',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#2196F3',
+      preConfirm: () => {
+        const name = document.getElementById('swal-new-company-name').value
+        const email = document.getElementById('swal-new-company-email').value
+        const category = document.getElementById('swal-new-company-category').value
+        const status = document.getElementById('swal-new-company-status').value
+        const website = document.getElementById('swal-new-company-website').value
+        const location = document.getElementById('swal-new-company-location').value
+        const description = document.getElementById('swal-new-company-description').value
+
+        if (!name || !name.trim()) {
+          Swal.showValidationMessage('Company name is required')
+          return false
+        }
+        if (!email || !email.trim()) {
+          Swal.showValidationMessage('Company email is required')
+          return false
+        }
+
+        return {
+          name: name.trim(),
+          email: email.trim(),
+          category: category.trim() || 'Software & IT',
+          status,
+          website: website.trim(),
+          location: location.trim(),
+          description: description.trim(),
+        }
+      },
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        handleCreateCompany(result.value)
+      }
     })
   }
 
@@ -73,23 +157,35 @@ export default function AdminCompaniesPage({
           <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Category</label>
           <input id="swal-edit-company-category" class="swal2-input" value="${c.category || 'Software & IT'}" style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;">
 
+          <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Website</label>
+          <input id="swal-edit-company-website" class="swal2-input" value="${c.website || ''}" style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;">
+
+          <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Location</label>
+          <input id="swal-edit-company-location" class="swal2-input" value="${c.location || ''}" style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;">
+
           <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Status</label>
           <select id="swal-edit-company-status" class="swal2-input" style="margin: 0 0 10px 0; width: 100%; box-sizing: border-box;">
             <option value="Pending" ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
             <option value="Approved" ${c.status === 'Approved' ? 'selected' : ''}>Approved</option>
             <option value="Suspended" ${c.status === 'Suspended' ? 'selected' : ''}>Suspended</option>
           </select>
+
+          <label style="display: block; margin-bottom: 4px; font-weight: 600; color: #334155;">Description</label>
+          <textarea id="swal-edit-company-description" class="swal2-input" rows="3" style="margin: 0; width: 100%; box-sizing: border-box; resize: vertical;">${c.description || ''}</textarea>
         </div>
       `,
       showCancelButton: true,
       confirmButtonText: 'Save to Database',
       cancelButtonText: 'Cancel',
-      confirmButtonColor: '#65DCD5',
+      confirmButtonColor: '#2196F3',
       preConfirm: () => {
         const name = document.getElementById('swal-edit-company-name').value
         const email = document.getElementById('swal-edit-company-email').value
         const category = document.getElementById('swal-edit-company-category').value
         const status = document.getElementById('swal-edit-company-status').value
+        const website = document.getElementById('swal-edit-company-website').value
+        const location = document.getElementById('swal-edit-company-location').value
+        const description = document.getElementById('swal-edit-company-description').value
 
         if (!name || !name.trim()) {
           Swal.showValidationMessage('Company name is required')
@@ -100,7 +196,15 @@ export default function AdminCompaniesPage({
           return false
         }
 
-        return { name: name.trim(), email: email.trim(), category, status }
+        return {
+          name: name.trim(),
+          email: email.trim(),
+          category,
+          status,
+          website: website.trim(),
+          location: location.trim(),
+          description: description.trim(),
+        }
       },
     }).then((result) => {
       if (result.isConfirmed && result.value) {
@@ -115,11 +219,47 @@ export default function AdminCompaniesPage({
         title: 'Action Restricted',
         text: 'Only pending companies can be deleted. Approved or suspended companies cannot be deleted.',
         icon: 'warning',
-        confirmButtonColor: '#65DCD5',
+        confirmButtonColor: '#2196F3',
       })
       return
     }
     handleDeleteCompany(c)
+  }
+
+  const onSuspendCompany = (c) => {
+    Swal.fire({
+      title: 'Suspend company?',
+      text: `Suspend "${c.name}"? It will be flagged as Suspended until restored.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, suspend',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleUpdateCompanyStatus(c.id, 'Suspended')
+      }
+    })
+  }
+
+  const onRestoreCompany = (c) => {
+    Swal.fire({
+      title: 'Restore company?',
+      text: `Approve "${c.name}" again and remove its suspension?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, restore',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleUpdateCompanyStatus(c.id, 'Approved')
+      }
+    })
   }
 
   return (
@@ -130,8 +270,29 @@ export default function AdminCompaniesPage({
           <h1>Company Management</h1>
         </div>
 
-        {/* Top-right summary badges */}
+        {/* Top-right summary badges + Add Company Button */}
         <div className="header-stat-badges" style={{ gap: '12px' }}>
+{/*           <button
+            type="button"
+            style={{
+              font: 'inherit',
+              fontSize: '13px',
+              fontWeight: '600',
+              padding: '8px 14px',
+              borderRadius: '8px',
+              border: 'none',
+              background: '#65DCD5',
+              color: '#0f172a',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 6px rgba(101, 220, 213, 0.25)',
+            }}
+            onClick={handleCreateCompanyModal}
+          >
+            <span>➕ Add Company</span>
+          </button> */}
           <div className="badge-stat badge-active">
             <span className="dot dot-active"></span>
             <span>TOTAL</span>
@@ -169,9 +330,9 @@ export default function AdminCompaniesPage({
                     fontWeight: '700',
                     padding: '7px 14px',
                     borderRadius: '20px',
-                    border: `1px solid ${isActive ? cfg.border : 'rgba(255, 255, 255, 0.1)'}`,
-                    background: isActive ? cfg.bg : 'rgba(255, 255, 255, 0.04)',
-                    color: isActive ? cfg.color : '#94a3b8',
+                    border: `1px solid ${isActive ? cfg.border : 'rgba(13, 71, 161, 0.12)'}`,
+                    background: isActive ? cfg.bg : 'rgba(227, 242, 253, 0.55)',
+                    color: isActive ? cfg.color : 'var(--text)',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -185,8 +346,8 @@ export default function AdminCompaniesPage({
                   <span>{cfg.label}</span>
                   <span
                     style={{
-                      background: isActive ? cfg.color : 'rgba(255, 255, 255, 0.1)',
-                      color: isActive ? '#0f172a' : '#cbd5e1',
+                      background: isActive ? cfg.color : 'rgba(227, 242, 253, 0.8)',
+                      color: isActive ? '#fff' : 'var(--text)',
                       padding: '1px 7px',
                       borderRadius: '10px',
                       fontSize: '11px',
@@ -217,19 +378,21 @@ export default function AdminCompaniesPage({
                   <th style={{ width: '16%' }}>CATEGORY</th>
                   <th style={{ width: '18%', paddingRight: '24px', whiteSpace: 'nowrap' }}>REGISTRATION DATE</th>
                   <th style={{ width: '12%', paddingLeft: '24px', whiteSpace: 'nowrap' }}>STATUS</th>
-                  <th style={{ textAlign: 'center', width: '170px' }}>ACTIONS</th>
+                  <th style={{ textAlign: 'center', width: '200px' }}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredCompanies.map((comp) => {
                   const isPending = (comp.status || '').toLowerCase() === 'pending'
+                  const isApproved = (comp.status || '').toLowerCase() === 'approved'
+                  const isSuspended = (comp.status || '').toLowerCase() === 'suspended'
 
                   return (
                     <tr key={comp.id}>
                       <td>
                         <div className="user-table-cell">
                           <span className="user-avatar-sm company-avatar">
-                            🏢
+                            <FaBuilding />
                           </span>
                           <strong className="user-display-name">{comp.name}</strong>
                         </div>
@@ -258,11 +421,12 @@ export default function AdminCompaniesPage({
                               background: 'rgba(59, 130, 246, 0.12)',
                               color: '#3b82f6',
                               cursor: 'pointer',
+                              whiteSpace: 'nowrap',
                             }}
                             onClick={() => handleViewCompany(comp)}
                             title="View Company Details"
                           >
-                            👁️ View
+                            <FaEye /> View
                           </button>
                           <button
                             type="button"
@@ -276,31 +440,95 @@ export default function AdminCompaniesPage({
                               background: 'rgba(20, 184, 166, 0.12)',
                               color: '#14b8a6',
                               cursor: 'pointer',
+                              whiteSpace: 'nowrap',
                             }}
                             onClick={() => handleEditCompany(comp)}
                             title="Edit Company Details"
                           >
-                            ✏️ Edit
+                            <FaPencilAlt /> Edit
                           </button>
-                          <button
-                            type="button"
-                            style={{
-                              font: 'inherit',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              padding: '5px 10px',
-                              borderRadius: '6px',
-                              border: isPending ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(148, 163, 184, 0.2)',
-                              background: isPending ? 'rgba(239, 68, 68, 0.12)' : 'rgba(148, 163, 184, 0.08)',
-                              color: isPending ? '#ef4444' : '#64748b',
-                              cursor: isPending ? 'pointer' : 'not-allowed',
-                              opacity: isPending ? 1 : 0.45,
-                            }}
-                            onClick={() => onAttemptDelete(comp)}
-                            title={isPending ? 'Delete Pending Company' : 'Only pending companies can be deleted'}
-                          >
-                            🗑️ Delete
-                          </button>
+                          {isPending ? (
+                            <button
+                              type="button"
+                              style={{
+                                font: 'inherit',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                padding: '5px 10px',
+                                borderRadius: '6px',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                background: 'rgba(239, 68, 68, 0.12)',
+                                color: '#ef4444',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                              }}
+                              onClick={() => onAttemptDelete(comp)}
+                              title="Delete Pending Company"
+                            >
+                              <FaTrashAlt /> Delete
+                            </button>
+                          ) : isApproved ? (
+                            <button
+                              type="button"
+                              style={{
+                                font: 'inherit',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                padding: '5px 10px',
+                                borderRadius: '6px',
+                                border: '1px solid rgba(245, 158, 11, 0.4)',
+                                background: 'rgba(245, 158, 11, 0.12)',
+                                color: '#f59e0b',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                              }}
+                              onClick={() => onSuspendCompany(comp)}
+                              title="Suspend Approved Company"
+                            >
+                              <FaBan /> Suspend
+                            </button>
+                          ) : isSuspended ? (
+                            <button
+                              type="button"
+                              style={{
+                                font: 'inherit',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                padding: '5px 10px',
+                                borderRadius: '6px',
+                                border: '1px solid rgba(16, 185, 129, 0.3)',
+                                background: 'rgba(16, 185, 129, 0.12)',
+                                color: '#10b981',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                              }}
+                              onClick={() => onRestoreCompany(comp)}
+                              title="Restore Suspended Company"
+                            >
+                              <FaRecycle /> Restore
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              style={{
+                                font: 'inherit',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                padding: '5px 10px',
+                                borderRadius: '6px',
+                                border: '1px solid rgba(148, 163, 184, 0.2)',
+                                background: 'rgba(148, 163, 184, 0.08)',
+                                color: '#64748b',
+                                cursor: 'not-allowed',
+                                opacity: 0.45,
+                                whiteSpace: 'nowrap',
+                              }}
+                              onClick={() => onAttemptDelete(comp)}
+                              title="Only pending companies can be deleted"
+                            >
+                              <FaTrashAlt /> Delete
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

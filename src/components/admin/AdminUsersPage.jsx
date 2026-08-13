@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Swal from 'sweetalert2'
+import { FaPlus, FaSearch, FaEye, FaPencilAlt, FaTrashAlt } from 'react-icons/fa'
 
 export default function AdminUsersPage({
   users,
@@ -45,7 +46,7 @@ export default function AdminUsersPage({
       showCancelButton: true,
       confirmButtonText: 'Create Admin',
       cancelButtonText: 'Cancel',
-      confirmButtonColor: '#65DCD5',
+      confirmButtonColor: '#2196F3',
       preConfirm: () => {
         const name = document.getElementById('swal-create-name').value
         const email = document.getElementById('swal-create-email').value
@@ -84,12 +85,12 @@ export default function AdminUsersPage({
           <div style="margin-bottom: 8px;"><strong>Full Name:</strong> ${u.name}</div>
           <div style="margin-bottom: 8px;"><strong>Email Address:</strong> ${u.email}</div>
           <div style="margin-bottom: 8px;"><strong>Fixed Role:</strong> <span style="text-transform: uppercase; font-weight: bold; background: rgba(20, 184, 166, 0.15); color: #0d9488; padding: 2px 8px; border-radius: 4px;">${u.role}</span></div>
-          <div style="margin-bottom: 8px;"><strong>Email Verified:</strong> ${u.emailVerified ? '✅ Verified' : '⚠️ Pending Verification'}</div>
+          <div style="margin-bottom: 8px;"><strong>Email Verified:</strong> ${u.emailVerified ? 'Verified' : 'Pending Verification'}</div>
           <div style="margin-bottom: 8px;"><strong>Registration Date:</strong> ${u.createdAt ? new Date(u.createdAt).toLocaleString() : 'N/A'}</div>
         </div>
       `,
       confirmButtonText: 'Close Details',
-      confirmButtonColor: '#65DCD5',
+      confirmButtonColor: '#2196F3',
     })
   }
 
@@ -112,7 +113,7 @@ export default function AdminUsersPage({
       showCancelButton: true,
       confirmButtonText: 'Save to Database',
       cancelButtonText: 'Cancel',
-      confirmButtonColor: '#65DCD5',
+      confirmButtonColor: '#2196F3',
       preConfirm: () => {
         const name = document.getElementById('swal-edit-name').value
         const email = document.getElementById('swal-edit-email').value
@@ -154,17 +155,17 @@ export default function AdminUsersPage({
               padding: '8px 14px',
               borderRadius: '8px',
               border: 'none',
-              background: '#65DCD5',
-              color: '#0f172a',
+              background: '#2196F3',
+              color: '#fff',
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              boxShadow: '0 2px 6px rgba(101, 220, 213, 0.25)',
+              boxShadow: '0 2px 6px rgba(33, 150, 243, 0.35)',
             }}
             onClick={handleOpenAddAdminModal}
           >
-            <span>➕ Add New Admin</span>
+            <span><FaPlus /> Add New Admin</span>
           </button>
           <div className="badge-stat badge-active">
             <span className="dot dot-active"></span>
@@ -188,7 +189,7 @@ export default function AdminUsersPage({
           {/* Compact Search & Filter Toolbar */}
           <div className="filters-bar compact-filters margin-bottom-none">
             <div className="search-input-wrapper">
-              <span className="search-icon">🔍</span>
+              <span className="search-icon"><FaSearch /></span>
               <input
                 type="text"
                 className="compact-search-input"
@@ -270,7 +271,7 @@ export default function AdminUsersPage({
                             onClick={() => handleViewUser(u)}
                             title="View User Details"
                           >
-                            👁️ View
+                            <FaEye /> View
                           </button>
                           <button
                             type="button"
@@ -288,7 +289,7 @@ export default function AdminUsersPage({
                             onClick={() => handleEditUser(u)}
                             title="Edit User Details"
                           >
-                            ✏️ Edit
+                            <FaPencilAlt /> Edit
                           </button>
                           <button
                             type="button"
@@ -308,7 +309,7 @@ export default function AdminUsersPage({
                             onClick={() => handleDelete(u)}
                             title={isSelf ? 'Cannot delete own account' : 'Delete User'}
                           >
-                            🗑️ Delete
+                            <FaTrashAlt /> Delete
                           </button>
                         </div>
                       </td>

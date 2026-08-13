@@ -1,3 +1,5 @@
+import { FaBullhorn } from 'react-icons/fa'
+
 export default function AdminNotificationsPage({
   notifications,
   handleSendNotification,
@@ -76,7 +78,7 @@ export default function AdminNotificationsPage({
             />
 
             <button type="submit" className="btn btn-primary margin-top">
-              📢 Broadcast Notification
+              <FaBullhorn /> Broadcast Notification
             </button>
           </form>
         </div>

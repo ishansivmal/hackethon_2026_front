@@ -32,33 +32,26 @@ export default function Jobs() {
   }, [])
 
   return (
-    <section className="customer-page" style={{ padding: '2rem' }}>
-      <h1>Available Jobs</h1>
+    <section className="customer-page">
+      <h2 className="listing-heading">
+        Available Jobs
+        {jobs.length > 0 && <span className="listing-count">{jobs.length} open</span>}
+      </h2>
 
       {loading ? (
-        <p>Loading jobs...</p>
+        <p className="listing-loading">Loading jobs...</p>
       ) : jobs.length > 0 ? (
-        <div
-          className="grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '1.5rem',
-            marginTop: '1rem',
-          }}
-        >
+        <div className="listing-grid">
           {jobs.map((job) => (
             <ItemCard key={job.job_ID || job.id} item={job} type="job" hasApplied={appliedIds.includes(job.job_ID || job.id)} />
           ))}
         </div>
       ) : (
-        <p>No jobs available at the moment.</p>
+        <p className="listing-empty">No jobs available at the moment.</p>
       )}
 
-      {/* Render the AppliedJobs component at the bottom of the Jobs tab */}
-      <hr style={{ margin: '3rem 0', borderColor: '#444' }} />
+      <hr className="listing-divider" />
       <AppliedJobs />
-
     </section>
   )
 }

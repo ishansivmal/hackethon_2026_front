@@ -31,27 +31,22 @@ export default function Internships() {
   }, [])
 
   return (
-    <section className="customer-page" style={{ padding: '2rem' }}>
-      <h1>Available Internships</h1>
+    <section className="customer-page">
+      <h2 className="listing-heading">
+        Available Internships
+        {internships.length > 0 && <span className="listing-count">{internships.length} open</span>}
+      </h2>
 
       {loading ? (
-        <p>Loading internships...</p>
+        <p className="listing-loading">Loading internships...</p>
       ) : internships.length > 0 ? (
-        <div
-          className="grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '1.5rem',
-            marginTop: '1rem',
-          }}
-        >
+        <div className="listing-grid">
           {internships.map((internship) => (
             <ItemCard key={internship.id} item={internship} type="internship" hasApplied={appliedIds.includes(internship.id)} />
           ))}
         </div>
       ) : (
-        <p>No internships available at the moment.</p>
+        <p className="listing-empty">No internships available at the moment.</p>
       )}
     </section>
   )

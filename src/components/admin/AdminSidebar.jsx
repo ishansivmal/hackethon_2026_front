@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { FaBolt, FaChartBar, FaUsers, FaBuilding } from 'react-icons/fa'
 
 export default function AdminSidebar({ currentUser }) {
   const [avatarUrl, setAvatarUrl] = useState(() => {
@@ -17,7 +18,7 @@ export default function AdminSidebar({ currentUser }) {
   return (
     <aside className="admin-sidebar">
       <div className="sidebar-header">
-        <span className="sidebar-brand-icon">⚡</span>
+        <span className="sidebar-brand-icon"><FaBolt /></span>
         <div>
           <h2 className="sidebar-title">Admin Hub</h2>
           <span className="sidebar-subtitle">Control Panel</span>
@@ -32,7 +33,7 @@ export default function AdminSidebar({ currentUser }) {
             `sidebar-link ${isActive ? 'active' : ''}`
           }
         >
-          <span className="sidebar-icon">📊</span>
+          <span className="sidebar-icon"><FaChartBar /></span>
           <span>Admin Dashboard</span>
         </NavLink>
 
@@ -42,7 +43,7 @@ export default function AdminSidebar({ currentUser }) {
             `sidebar-link ${isActive ? 'active' : ''}`
           }
         >
-          <span className="sidebar-icon">👥</span>
+          <span className="sidebar-icon"><FaUsers /></span>
           <span>User Management</span>
         </NavLink>
 
@@ -52,18 +53,8 @@ export default function AdminSidebar({ currentUser }) {
             `sidebar-link ${isActive ? 'active' : ''}`
           }
         >
-          <span className="sidebar-icon">🏢</span>
+          <span className="sidebar-icon"><FaBuilding /></span>
           <span>Company Management</span>
-        </NavLink>
-
-        <NavLink
-          to="/admin/notifications"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? 'active' : ''}`
-          }
-        >
-          <span className="sidebar-icon">🔔</span>
-          <span>Notifications</span>
         </NavLink>
       </nav>
 

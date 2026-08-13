@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
+import { FaCamera } from 'react-icons/fa'
 
 const PRESET_AVATARS = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
@@ -96,15 +97,15 @@ export default function AdminProfileModal({ user, onClose }) {
                 height: '96px',
                 borderRadius: '50%',
                 overflow: 'hidden',
-                background: 'linear-gradient(135deg, #aa3bff, #65DCD5)',
+                background: 'linear-gradient(135deg, #2196F3, #0D47A1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '32px',
                 fontWeight: 'bold',
                 color: '#fff',
-                border: '3px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+                border: '3px solid rgba(255, 255, 255, 0.6)',
+                boxShadow: '0 4px 14px rgba(13, 71, 161, 0.3)',
               }}
             >
               {avatarUrl ? (
@@ -130,18 +131,18 @@ export default function AdminProfileModal({ user, onClose }) {
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
-                background: '#65DCD5',
-                color: '#0f172a',
-                border: '2px solid #181b21',
+                background: '#2196F3',
+                color: '#fff',
+                border: '2px solid #ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '14px',
                 cursor: 'pointer',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                boxShadow: '0 2px 6px rgba(13, 71, 161, 0.35)',
               }}
             >
-              📷
+              <FaCamera />
             </button>
           </div>
 
@@ -164,8 +165,8 @@ export default function AdminProfileModal({ user, onClose }) {
         </div>
 
         {/* Preset Avatars Selector */}
-        <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', textAlign: 'center' }}>
-          <span style={{ fontSize: '12px', color: '#94a3b8', display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+        <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(33, 150, 243, 0.06)', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border)' }}>
+          <span style={{ fontSize: '12px', color: 'var(--text)', display: 'block', marginBottom: '8px', fontWeight: '600', opacity: 0.8 }}>
             Choose Preset Avatar or Upload Custom
           </span>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', alignItems: 'center' }}>
@@ -181,7 +182,7 @@ export default function AdminProfileModal({ user, onClose }) {
                   borderRadius: '50%',
                   objectFit: 'cover',
                   cursor: 'pointer',
-                  border: avatarUrl === url ? '2px solid #65DCD5' : '2px solid transparent',
+                  border: avatarUrl === url ? '2px solid #2196F3' : '2px solid transparent',
                   opacity: avatarUrl === url ? 1 : 0.75,
                   transition: 'all 0.2s',
                 }}

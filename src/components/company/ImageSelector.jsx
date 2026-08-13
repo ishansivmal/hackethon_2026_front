@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { FaImage, FaTimes } from 'react-icons/fa'
 
 export default function ImageSelector({ id, preview, onChange }) {
   const inputRef = useRef(null)
@@ -30,12 +31,12 @@ export default function ImageSelector({ id, preview, onChange }) {
             className="cd-upload-remove"
             onClick={() => onChange(null)}
           >
-            ✕ Remove
+            <FaTimes /> Remove
           </button>
         </div>
       ) : (
         <button type="button" className="cd-upload-box" onClick={pick}>
-          <span className="cd-upload-icon">🖼️</span>
+          <span className="cd-upload-icon"><FaImage /></span>
           <span>Upload an image</span>
         </button>
       )}

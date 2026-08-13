@@ -16,4 +16,7 @@ export const applyForProblem = (id, formData) => api.post(`/customer/apply/probl
 })
 
 export const getAppliedRecord = () => api.get('/customer/applied')
-export const getJOB = () => api.get('/customer/applied/job')
+
+export const getAppliedInternships = () => api.get('/customer/applied/internship')
+export const getAppliedJobs = () => api.get('/customer/applied/job')
+export const getAppliedProblems = () => api.get('/customer/applied/problem')

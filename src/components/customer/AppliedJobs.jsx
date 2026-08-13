@@ -1,48 +1,49 @@
 import { useEffect, useState } from 'react'
-import { getJOB } from '../../api/customerapi'
-import ItemCard from './ItemCard'
+import { getAppliedJobs } from '../../api/customerapi'
+import AppliedItemCard from './AppliedItemCard'
+import '../../styles/CompanyDashboard.css'
+import '../../pages/UserPanel.css'
 
 export default function AppliedJobs() {
-  const [jobs, setJobs] = useState([])
+  const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchAppliedJobs = async () => {
       try {
-        const response = await getJOB()
-        setJobs(response.data)
+        const response = await getAppliedJobs()
+        setApplications(response.data || [])
       } catch (error) {
         console.error("Error fetching applied jobs:", error)
       } finally {
         setLoading(false)
       }
     }
-    
+
     fetchAppliedJobs()
   }, [])
 
   return (
-    <div style={{ marginTop: '3rem' }}>
-      <h2>My Applied Jobs</h2>
-      
+    <div className="cd-view">
+      <div className="cd-view-header">
+        <div className="cd-view-heading">
+          <div>
+            <h2 className="cd-view-title">My Applied Jobs</h2>
+            <p className="cd-view-sub">Jobs you have applied to and their current status.</p>
+          </div>
+        </div>
+      </div>
+
       {loading ? (
-        <p>Loading your applications...</p>
-      ) : jobs.length > 0 ? (
-        <div
-          className="grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '1.5rem',
-            marginTop: '1rem',
-          }}
-        >
-          {jobs.map((job) => (
-            <ItemCard key={job.job_ID || job.id} item={job} type="job" hasApplied={true} />
+        <p className="cd-posted-empty">Loading your applications...</p>
+      ) : applications.length > 0 ? (
+        <div className="up-view-grid">
+          {applications.map((application) => (
+            <AppliedItemCard key={application.applied_job_ID} application={application} type="job" />
           ))}
         </div>
       ) : (
-        <p>You haven't applied to any jobs yet.</p>
+        <p className="cd-posted-empty">You haven't applied to any jobs yet.</p>
       )}
     </div>
   )

@@ -1,3 +1,5 @@
+import { FaDownload } from 'react-icons/fa'
+
 export default function AdminReportsPage({ handleExportReport }) {
   return (
     <div className="tab-content">
@@ -10,7 +12,7 @@ export default function AdminReportsPage({ handleExportReport }) {
           className="btn btn-primary"
           onClick={handleExportReport}
         >
-          📥 Export JSON Report
+          <FaDownload /> Export JSON Report
         </button>
       </div>
 

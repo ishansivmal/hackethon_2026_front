@@ -31,27 +31,22 @@ export default function Problems() {
   }, [])
 
   return (
-    <section className="customer-page" style={{ padding: '2rem' }}>
-      <h1>Available Problems to Solve</h1>
+    <section className="customer-page">
+      <h2 className="listing-heading">
+        Available Problems to Solve
+        {problems.length > 0 && <span className="listing-count">{problems.length} open</span>}
+      </h2>
 
       {loading ? (
-        <p>Loading problems...</p>
+        <p className="listing-loading">Loading problems...</p>
       ) : problems.length > 0 ? (
-        <div
-          className="grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '1.5rem',
-            marginTop: '1rem',
-          }}
-        >
+        <div className="listing-grid">
           {problems.map((problem) => (
             <ItemCard key={problem.problem_ID || problem.id} item={problem} type="problem" hasApplied={appliedIds.includes(problem.problem_ID || problem.id)} />
           ))}
         </div>
       ) : (
-        <p>No problems posted at the moment.</p>
+        <p className="listing-empty">No problems posted at the moment.</p>
       )}
     </section>
   )

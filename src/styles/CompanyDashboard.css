@@ -684,6 +684,42 @@
   text-decoration: underline;
 }
 
+.cd-app-solution {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(13, 71, 161, 0.05);
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+}
+
+.cd-app-solution-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cd-app-solution-chip {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.cd-app-solution-text {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .cd-app-card--selected {
   border-color: var(--accent);
   background: var(--accent-bg);

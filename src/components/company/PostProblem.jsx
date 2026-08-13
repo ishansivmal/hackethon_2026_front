@@ -3,6 +3,7 @@ import PostedList from './PostedList'
 import EditItemModal from './EditItemModal'
 import CreateItemModal from './CreateItemModal'
 import deletePosted from '../../utils/deletePosted'
+import { FaMicroscope, FaPlus, FaEnvelopeOpen, FaPencilAlt, FaTrashAlt } from 'react-icons/fa'
 
 export default function PostProblem({ items = [], onPosted }) {
   const [creating, setCreating] = useState(false)
@@ -16,7 +17,7 @@ export default function PostProblem({ items = [], onPosted }) {
     <div className="cd-view">
       <div className="cd-view-header">
         <div className="cd-view-heading">
-          <span className="cd-view-emoji">🔬</span>
+          <span className="cd-view-emoji"><FaMicroscope /></span>
           <div>
             <h2 className="cd-view-title">Problems</h2>
             <p className="cd-view-sub">Manage the challenges submitted by your company.</p>
@@ -28,12 +29,12 @@ export default function PostProblem({ items = [], onPosted }) {
           className="cd-create-btn"
           onClick={() => setCreating(true)}
         >
-          <span className="cd-create-btn-plus">＋</span> Create Problem
+          <span className="cd-create-btn-plus"><FaPlus /></span> Create Problem
         </button>
       </div>
 
       <PostedList
-        icon="🔬"
+        icon={<FaMicroscope />}
         title="My Submitted Problems"
         subtitle="Only problems submitted by your account are shown here."
         emptyText="You haven't submitted any problems yet. Click “Create Problem” to share your first challenge."
@@ -47,21 +48,21 @@ export default function PostProblem({ items = [], onPosted }) {
                   View requirements PDF
                 </a>
               )}
-              <span className="cd-posted-apps">📨 {problem.applications?.length ?? 0} solutions</span>
+              <span className="cd-posted-apps"><FaEnvelopeOpen /> {problem.applications?.length ?? 0} solutions</span>
               <div className="cd-posted-actions">
                 <button
                   type="button"
                   className="cd-posted-btn cd-posted-btn--edit"
                   onClick={() => setEditing(problem)}
                 >
-                  ✏️ Edit
+                  <FaPencilAlt /> Edit
                 </button>
                 <button
                   type="button"
                   className="cd-posted-btn cd-posted-btn--delete"
                   onClick={() => handleDelete(problem)}
                 >
-                  🗑️ Delete
+                  <FaTrashAlt /> Delete
                 </button>
               </div>
             </div>

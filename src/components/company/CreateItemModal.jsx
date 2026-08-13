@@ -2,31 +2,32 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { postInternship, postJob, postProblem } from '../../api/company'
 import ImageSelector from './ImageSelector'
+import { FaGraduationCap, FaBriefcase, FaMicroscope, FaFileAlt, FaTimes, FaRocket } from 'react-icons/fa'
 
 const INTERN_TYPES = ['PHYSICAL', 'ONLINE', 'HYBRID']
 const JOB_TYPES = ['REMOTE', 'PHYSICAL', 'HYBRID']
 
 const META = {
   internship: {
-    icon: '🎓',
+    icon: <FaGraduationCap />,
     title: 'Create Internship',
     sub: 'Fill in the details to attract the best interns for your company.',
     api: postInternship,
-    success: (name) => `Internship "${name}" posted successfully! 🎓`,
+    success: (name) => `Internship "${name}" posted successfully!`,
   },
   job: {
-    icon: '💼',
+    icon: <FaBriefcase />,
     title: 'Create Job',
     sub: 'Post an open position and find exceptional talent.',
     api: postJob,
-    success: (name) => `Job "${name}" posted successfully! 💼`,
+    success: (name) => `Job "${name}" posted successfully!`,
   },
   problem: {
-    icon: '🔬',
+    icon: <FaMicroscope />,
     title: 'Create Problem',
     sub: 'Share a real challenge and let the community solve it.',
     api: postProblem,
-    success: () => 'Problem statement submitted successfully! 🔬',
+    success: () => 'Problem statement submitted successfully!',
   },
 }
 
@@ -413,14 +414,14 @@ export default function CreateItemModal({ type, onClose, onCreated }) {
                 />
                 {form.pdfName ? (
                   <div className="cd-pdf-picked">
-                    <span className="cd-pdf-icon">📄</span>
+                    <span className="cd-pdf-icon"><FaFileAlt /></span>
                     <span className="cd-file-name">{form.pdfName}</span>
                     <button
                       type="button"
                       className="cd-upload-remove cd-upload-remove--static"
                       onClick={() => setForm(prev => ({ ...prev, pdf: null, pdfName: '' }))}
                     >
-                      ✕ Remove
+                      <FaTimes /> Remove
                     </button>
                   </div>
                 ) : (
@@ -429,7 +430,7 @@ export default function CreateItemModal({ type, onClose, onCreated }) {
                     className="cd-upload-box"
                     onClick={() => pdfInputRef.current?.click()}
                   >
-                    <span className="cd-upload-icon">📄</span>
+                    <span className="cd-upload-icon"><FaFileAlt /></span>
                     <span>Attach a PDF</span>
                   </button>
                 )}
@@ -452,7 +453,7 @@ export default function CreateItemModal({ type, onClose, onCreated }) {
             >
               {submitting
                 ? <><span className="cd-spinner" /> Posting…</>
-                : <><span>🚀</span> Create {type === 'internship' ? 'Internship' : type === 'job' ? 'Job' : 'Problem'}</>}
+                : <><span><FaRocket /></span> Create {type === 'internship' ? 'Internship' : type === 'job' ? 'Job' : 'Problem'}</>}
             </button>
           </div>
         </form>

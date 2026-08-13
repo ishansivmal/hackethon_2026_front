@@ -2,11 +2,24 @@ import { useState } from 'react'
 import Swal from 'sweetalert2'
 import { toast } from 'react-toastify'
 import { updateApplicationSelection, rankApplicants } from '../../api/company'
+import {
+  FaGraduationCap,
+  FaBriefcase,
+  FaMicroscope,
+  FaRobot,
+  FaFileAlt,
+  FaStopwatch,
+  FaMoneyBillWave,
+  FaLink,
+  FaCheck,
+  FaHourglassHalf,
+  FaMagic,
+} from 'react-icons/fa'
 
 const CATEGORIES = [
-  { id: 'internship', icon: '🎓', label: 'Applied Internships' },
-  { id: 'job', icon: '💼', label: 'Applied Jobs' },
-  { id: 'problem', icon: '🔬', label: 'Applied Problems' },
+  { id: 'internship', icon: <FaGraduationCap />, label: 'Applied Internships' },
+  { id: 'job', icon: <FaBriefcase />, label: 'Applied Jobs' },
+  { id: 'problem', icon: <FaMicroscope />, label: 'Applied Problems' },
 ]
 
 const AI_ENABLED = ['internship', 'job']
@@ -89,11 +102,11 @@ function ApplicantCard({ row, icon, onUpdated, aiScore }) {
           <div style="display:inline-block;font-size:24px;font-weight:800;color:#0D47A1;padding:10px 18px;border:2px solid #0D47A1;border-radius:12px;margin:8px 0;">
             ${aiScore.score}/100
           </div>
-          <p style="font-weight:700;color:#111827;margin:12px 0 4px;">✅ Strengths</p>
+          <p style="font-weight:700;color:#111827;margin:12px 0 4px;">Strengths</p>
           <ul style="margin:0;padding-left:18px;color:#374151;font-size:13px;">
             ${aiScore.strengths.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}
           </ul>
-          <p style="font-weight:700;color:#111827;margin:12px 0 4px;">⚠️ Weaknesses</p>
+          <p style="font-weight:700;color:#111827;margin:12px 0 4px;">Weaknesses</p>
           <ul style="margin:0;padding-left:18px;color:#374151;font-size:13px;">
             ${aiScore.weaknesses.map((w) => `<li>${escapeHtml(w)}</li>`).join('')}
           </ul>
@@ -125,7 +138,7 @@ function ApplicantCard({ row, icon, onUpdated, aiScore }) {
             title="View AI fit analysis"
             style={{ '--rec-color': recColor(aiScore.recommendation) }}
           >
-            <span>🤖 #{aiScore.rank}</span>
+            <span><FaRobot /> #{aiScore.rank}</span>
             <strong>{aiScore.score}%</strong>
           </button>
         )}
@@ -138,12 +151,39 @@ function ApplicantCard({ row, icon, onUpdated, aiScore }) {
       </p>
       {row.cv_url && (
         <a className="cd-app-cv" href={row.cv_url} target="_blank" rel="noreferrer">
-          📄 View CV
+          <FaFileAlt /> View CV
         </a>
+      )}
+      {row.type === 'problem' && row.solution && (
+        <div className="cd-app-solution">
+          {(row.solution.time || row.solution.budget) && (
+            <div className="cd-app-solution-meta">
+              {row.solution.time && (
+                <span className="cd-app-solution-chip"><FaStopwatch /> {row.solution.time}</span>
+              )}
+              {row.solution.budget != null && row.solution.budget !== '' && (
+                <span className="cd-app-solution-chip"><FaMoneyBillWave /> ${row.solution.budget}</span>
+              )}
+            </div>
+          )}
+          {row.solution.solution && (
+            <p className="cd-app-solution-text">{row.solution.solution}</p>
+          )}
+          {row.solution.url && (
+            <a className="cd-app-cv" href={row.solution.url} target="_blank" rel="noreferrer">
+              <FaLink /> View solution link
+            </a>
+          )}
+          {row.solution.pdf && (
+            <a className="cd-app-cv" href={row.solution.pdf} target="_blank" rel="noreferrer">
+              <FaFileAlt /> View solution document
+            </a>
+          )}
+        </div>
       )}
       <div className="cd-app-actions">
         <span className={`cd-app-status${row.isSelected ? ' cd-app-status--selected' : ''}`}>
-          {row.isSelected ? '✓ Selected' : '⏳ Pending'}
+          {row.isSelected ? <><FaCheck /> Selected</> : <><FaHourglassHalf /> Pending</>}
         </span>
         {!row.isSelected && (
           <button
@@ -152,7 +192,7 @@ function ApplicantCard({ row, icon, onUpdated, aiScore }) {
             onClick={handleSelect}
             disabled={updating}
           >
-            {updating ? 'Updating…' : '✓ Select'}
+            {updating ? 'Updating…' : <><FaCheck /> Select</>}
           </button>
         )}
       </div>
@@ -196,12 +236,12 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
       .join('')
 
     Swal.fire({
-      title: '🤖 Best Candidate Suggestions',
+      title: 'Best Candidate Suggestions',
       html: `
         <div style="max-height:420px;overflow-y:auto;">${rowsHtml}</div>
         <p style="font-size:12px;color:#9ca3af;margin:12px 0 0;text-align:left;">
           Scores are AI-generated from each candidate's CV against your requirements.
-          Click any 🤖 badge on a card for the detailed analysis.
+          Click any AI badge on a card for the detailed analysis.
         </p>`,
       width: 640,
       confirmButtonText: 'Got it',
@@ -248,7 +288,7 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
       {supportsAi && (
         <div className="cd-app-toolbar">
           <div className="cd-app-toolbar-info">
-            <span className="cd-app-toolbar-icon">🤖</span>
+            <span className="cd-app-toolbar-icon"><FaRobot /></span>
             <div>
               <h3 className="cd-app-toolbar-title">AI Candidate Suggestions</h3>
               <p className="cd-app-toolbar-sub">
@@ -262,7 +302,7 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
             onClick={handleRank}
             disabled={ranking || rows.length === 0}
           >
-            {ranking ? '⏳ Analyzing CVs…' : '✨ Suggest Best Candidates'}
+            {ranking ? <><FaHourglassHalf /> Analyzing CVs…</> : <><FaMagic /> Suggest Best Candidates</>}
           </button>
         </div>
       )}

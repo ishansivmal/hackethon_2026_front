@@ -79,7 +79,7 @@ export default function AdminPage() {
         title: 'User Created!',
         text: `${response.data.user.name} (${response.data.user.email}) added to MySQL database.`,
         icon: 'success',
-        confirmButtonColor: '#65DCD5',
+        confirmButtonColor: '#2196F3',
       })
       return true
     } catch (err) {
@@ -89,7 +89,7 @@ export default function AdminPage() {
         title: 'Creation Error',
         text: msg,
         icon: 'error',
-        confirmButtonColor: '#65DCD5',
+        confirmButtonColor: '#2196F3',
       })
       return false
     }
@@ -106,7 +106,7 @@ export default function AdminPage() {
         title: 'User Saved!',
         text: `${response.data.user.name} (${response.data.user.email}) stored in database.`,
         icon: 'success',
-        confirmButtonColor: '#65DCD5',
+        confirmButtonColor: '#2196F3',
       })
       return true
     } catch (err) {
@@ -116,7 +116,7 @@ export default function AdminPage() {
         title: 'Update Error',
         text: msg,
         icon: 'error',
-        confirmButtonColor: '#65DCD5',
+        confirmButtonColor: '#2196F3',
       })
       return false
     }
@@ -145,7 +145,7 @@ export default function AdminPage() {
         title: 'Deleted!',
         text: `User "${user.email}" was deleted from database.`,
         icon: 'success',
-        confirmButtonColor: '#65DCD5',
+        confirmButtonColor: '#2196F3',
       })
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to delete user'
@@ -154,7 +154,7 @@ export default function AdminPage() {
         title: 'Error',
         text: msg,
         icon: 'error',
-        confirmButtonColor: '#65DCD5',
+        confirmButtonColor: '#2196F3',
       })
     }
   }
@@ -168,13 +168,13 @@ export default function AdminPage() {
         title: 'Company Created!',
         text: `${response.data.company.name} added to database.`,
         icon: 'success',
-        confirmButtonColor: '#65DCD5',
+        confirmButtonColor: '#2196F3',
       })
       return true
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to create company'
       toast.error(msg)
-      Swal.fire({ title: 'Error', text: msg, icon: 'error', confirmButtonColor: '#65DCD5' })
+      Swal.fire({ title: 'Error', text: msg, icon: 'error', confirmButtonColor: '#2196F3' })
       return false
     }
   }
@@ -190,13 +190,13 @@ export default function AdminPage() {
         title: 'Company Saved!',
         text: `Details updated in database.`,
         icon: 'success',
-        confirmButtonColor: '#65DCD5',
+        confirmButtonColor: '#2196F3',
       })
       return true
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to update company'
       toast.error(msg)
-      Swal.fire({ title: 'Error', text: msg, icon: 'error', confirmButtonColor: '#65DCD5' })
+      Swal.fire({ title: 'Error', text: msg, icon: 'error', confirmButtonColor: '#2196F3' })
       return false
     }
   }
@@ -224,12 +224,12 @@ export default function AdminPage() {
         title: 'Deleted!',
         text: `Company "${company.name}" was removed from database.`,
         icon: 'success',
-        confirmButtonColor: '#65DCD5',
+        confirmButtonColor: '#2196F3',
       })
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to delete company'
       toast.error(msg)
-      Swal.fire({ title: 'Error', text: msg, icon: 'error', confirmButtonColor: '#65DCD5' })
+      Swal.fire({ title: 'Error', text: msg, icon: 'error', confirmButtonColor: '#2196F3' })
     }
   }
 

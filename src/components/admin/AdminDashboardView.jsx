@@ -1,4 +1,14 @@
 import { Link } from 'react-router-dom'
+import {
+  FaSync,
+  FaUsers,
+  FaUser,
+  FaBuilding,
+  FaBolt,
+  FaHourglassHalf,
+  FaBullhorn,
+  FaChartBar,
+} from 'react-icons/fa'
 
 export default function AdminDashboardView({
   users,
@@ -23,14 +33,14 @@ export default function AdminDashboardView({
           <h1>Admin Dashboard</h1>
         </div>
         <button type="button" className="btn btn-outline" onClick={fetchUsers}>
-          🔄 Refresh Data
+          <FaSync /> Refresh Data
         </button>
       </div>
 
       {/* Summary Stat Cards */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon stat-icon-blue">👥</div>
+          <div className="stat-icon stat-icon-blue"><FaUsers /></div>
           <div className="stat-details">
             <span className="stat-label">Total Users</span>
             <span className="stat-value">{totalUsersCount}</span>
@@ -39,7 +49,7 @@ export default function AdminDashboardView({
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon stat-icon-green">👤</div>
+          <div className="stat-icon stat-icon-green"><FaUser /></div>
           <div className="stat-details">
             <span className="stat-label">Normal Users / Seekers</span>
             <span className="stat-value">{normalUserCount}</span>
@@ -48,7 +58,7 @@ export default function AdminDashboardView({
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon stat-icon-purple">🏢</div>
+          <div className="stat-icon stat-icon-purple"><FaBuilding /></div>
           <div className="stat-details">
             <span className="stat-label">Companies</span>
             <span className="stat-value">
@@ -61,7 +71,7 @@ export default function AdminDashboardView({
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon stat-icon-teal">⚡</div>
+          <div className="stat-icon stat-icon-teal"><FaBolt /></div>
           <div className="stat-details">
             <span className="stat-label">Admin Accounts</span>
             <span className="stat-value">{adminCount}</span>
@@ -70,7 +80,7 @@ export default function AdminDashboardView({
         </div>
 
         <div className="stat-card stat-card-highlight">
-          <div className="stat-icon stat-icon-orange">⏳</div>
+          <div className="stat-icon stat-icon-orange"><FaHourglassHalf /></div>
           <div className="stat-details">
             <span className="stat-label">Pending Approvals</span>
             <span className="stat-value">{pendingApprovalsCount}</span>
@@ -139,16 +149,16 @@ export default function AdminDashboardView({
           <p className="card-subtitle">Manage core application features directly</p>
           <div className="quick-actions-grid">
             <Link to="/admin/users" className="action-btn">
-              <span>👥</span> Manage Users
+              <span><FaUsers /></span> Manage Users
             </Link>
             <Link to="/admin/companies" className="action-btn">
-              <span>🏢</span> Review Companies
+              <span><FaBuilding /></span> Review Companies
             </Link>
             <Link to="/admin/notifications" className="action-btn">
-              <span>📢</span> Send Broadcast
+              <span><FaBullhorn /></span> Send Broadcast
             </Link>
             <Link to="/admin/reports" className="action-btn">
-              <span>📊</span> Export Analytics
+              <span><FaChartBar /></span> Export Analytics
             </Link>
           </div>
         </div>

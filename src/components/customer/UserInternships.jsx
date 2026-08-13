@@ -1,22 +1,47 @@
-  import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { getAppliedInternships } from '../../api/customerapi'
+import AppliedItemCard from './AppliedItemCard'
 
-  export default function UserInternships() {
-    const [mockData] = useState([
-      { id: 1, title: 'Frontend Developer Intern', company: 'Tech Solutions' },
-      { id: 2, title: 'Data Analytics Intern', company: 'Data Corp' }
-    ])
+export default function UserInternships() {
+  const [applications, setApplications] = useState([])
+  const [loading, setLoading] = useState(true)
 
-    return (
-      <div>
-        <h2 style={{ marginBottom: '1.5rem', fontSize: '1.8rem' }}>Applied Internships</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {mockData.map(item => (
-            <div key={item.id} style={{ padding: '1rem', border: '1px solid #ccc', borderRadius: '8px', background: '#fff' }}>
-              <h3 style={{ margin: '0 0 0.5rem', color: '#333' }}>{item.title}</h3>
-              <p style={{ margin: 0, color: '#666' }}>{item.company}</p>
-            </div>
-          ))}
+  useEffect(() => {
+    const fetchApplied = async () => {
+      try {
+        const response = await getAppliedInternships()
+        setApplications(response.data || [])
+      } catch (error) {
+        console.error("Error fetching applied internships:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchApplied()
+  }, [])
+
+  return (
+    <div className="cd-view">
+      <div className="cd-view-header">
+        <div className="cd-view-heading">
+          <div>
+            <h2 className="cd-view-title">My Internships</h2>
+            <p className="cd-view-sub">Internships you have applied to and their current status.</p>
+          </div>
         </div>
       </div>
-    )
-  }
+
+      {loading ? (
+        <p className="cd-posted-empty">Loading your applications...</p>
+      ) : applications.length > 0 ? (
+        <div className="up-view-grid">
+          {applications.map((application) => (
+            <AppliedItemCard key={application.applied_internship_ID} application={application} type="internship" />
+          ))}
+        </div>
+      ) : (
+        <p className="cd-posted-empty">You haven't applied to any internships yet.</p>
+      )}
+    </div>
+  )
+}

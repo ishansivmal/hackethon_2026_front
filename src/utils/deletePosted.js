@@ -51,7 +51,7 @@ export default async function deletePosted(type, item) {
       title: 'Deleted!',
       text: `The ${label} was deleted.`,
       icon: 'success',
-      confirmButtonColor: '#65DCD5',
+      confirmButtonColor: '#2196F3',
     })
     return true
   } catch (err) {
@@ -61,7 +61,7 @@ export default async function deletePosted(type, item) {
       title: 'Error',
       text: msg,
       icon: 'error',
-      confirmButtonColor: '#65DCD5',
+      confirmButtonColor: '#2196F3',
     })
     return false
   }

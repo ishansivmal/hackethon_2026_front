@@ -2,25 +2,35 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { updateInternship, updateJob, updateProblem } from '../../api/company'
 import ImageSelector from './ImageSelector'
+import {
+  FaGraduationCap,
+  FaBriefcase,
+  FaMicroscope,
+  FaFileAlt,
+  FaTimes,
+  FaUndoAlt,
+  FaTrashAlt,
+  FaSave,
+} from 'react-icons/fa'
 
 const INTERN_TYPES = ['PHYSICAL', 'ONLINE', 'HYBRID']
 const JOB_TYPES = ['REMOTE', 'PHYSICAL', 'HYBRID']
 
 const META = {
   internship: {
-    icon: '🎓',
+    icon: <FaGraduationCap />,
     title: 'Edit Internship',
     api: updateInternship,
     fileKey: 'photo',
   },
   job: {
-    icon: '💼',
+    icon: <FaBriefcase />,
     title: 'Edit Job',
     api: updateJob,
     fileKey: 'image',
   },
   problem: {
-    icon: '🔬',
+    icon: <FaMicroscope />,
     title: 'Edit Problem',
     api: updateProblem,
     fileKey: 'pdf',
@@ -439,26 +449,26 @@ export default function EditItemModal({ type, item, onClose, onSaved }) {
                 />
                 {form.pdfName ? (
                   <div className="cd-pdf-picked">
-                    <span className="cd-pdf-icon">📄</span>
+                    <span className="cd-pdf-icon"><FaFileAlt /></span>
                     <span className="cd-file-name">{form.pdfName}</span>
                     <button
                       type="button"
                       className="cd-upload-remove cd-upload-remove--static"
                       onClick={clearNewPdf}
                     >
-                      ✕ Remove
+                      <FaTimes /> Remove
                     </button>
                   </div>
                 ) : form.removePdf ? (
                   <div className="cd-pdf-removed">
-                    <span className="cd-pdf-icon">📄</span>
+                    <span className="cd-pdf-icon"><FaFileAlt /></span>
                     <span className="cd-file-name">Current PDF will be removed</span>
                     <button
                       type="button"
                       className="cd-posted-btn cd-posted-btn--edit"
                       onClick={() => setForm(prev => ({ ...prev, removePdf: false }))}
                     >
-                      ↩ Undo
+                      <FaUndoAlt /> Undo
                     </button>
                   </div>
                 ) : (
@@ -468,7 +478,7 @@ export default function EditItemModal({ type, item, onClose, onSaved }) {
                       className="cd-upload-box"
                       onClick={() => pdfInputRef.current?.click()}
                     >
-                      <span className="cd-upload-icon">📄</span>
+                      <span className="cd-upload-icon"><FaFileAlt /></span>
                       <span>{item.pdf ? 'Replace current PDF' : 'Attach a PDF'}</span>
                     </button>
                     {item.pdf && (
@@ -477,7 +487,7 @@ export default function EditItemModal({ type, item, onClose, onSaved }) {
                         className="cd-posted-btn cd-posted-btn--delete"
                         onClick={removePdf}
                       >
-                        🗑️ Remove current PDF
+                        <FaTrashAlt /> Remove current PDF
                       </button>
                     )}
                   </div>
@@ -501,7 +511,7 @@ export default function EditItemModal({ type, item, onClose, onSaved }) {
             >
               {submitting
                 ? <><span className="cd-spinner" /> Saving…</>
-                : <><span>💾</span> Save Changes</>}
+                : <><span><FaSave /></span> Save Changes</>}
             </button>
           </div>
         </form>

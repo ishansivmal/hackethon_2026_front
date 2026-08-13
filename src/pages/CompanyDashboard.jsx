@@ -7,6 +7,7 @@ import PostInternship from '../components/company/PostInternship'
 import PostJob from '../components/company/PostJob'
 import PostProblem from '../components/company/PostProblem'
 import AppliedApplications from '../components/company/AppliedApplications'
+import { FaGraduationCap, FaBriefcase, FaMicroscope, FaClipboardList, FaEnvelopeOpen } from 'react-icons/fa'
 import '../styles/CompanyDashboard.css'
 
 // ─── Nav items config ─────────────────────────────────────────────────────────
@@ -14,28 +15,28 @@ const NAV_ITEMS = [
   {
     id: 'internship',
     label: 'Post Internship',
-    icon: '🎓',
+    icon: <FaGraduationCap />,
     desc: 'Add an internship listing',
     color: '#2196F3',   /* theme accent */
   },
   {
     id: 'job',
     label: 'Post Job',
-    icon: '💼',
+    icon: <FaBriefcase />,
     desc: 'Publish a job opening',
     color: '#2196F3',   /* theme accent */
   },
   {
     id: 'problem',
     label: 'Post Problem',
-    icon: '🔬',
+    icon: <FaMicroscope />,
     desc: 'Submit a company challenge',
     color: '#2196F3',   /* theme accent */
   },
   {
     id: 'applications',
     label: 'Applied Applications',
-    icon: '📋',
+    icon: <FaClipboardList />,
     desc: 'See who applied to your listings',
     color: '#2196F3',   /* theme accent */
   },
@@ -103,7 +104,7 @@ export default function CompanyDashboard() {
   useEffect(() => {
     if (user && !welcomeShown.current) {
       welcomeShown.current = true
-      toast.success(`Welcome back, ${user.name}! 🎉`)
+      toast.success(`Welcome back, ${user.name}!`)
     }
   }, [user])
 
@@ -198,10 +199,10 @@ export default function CompanyDashboard() {
         {/* Stats row */}
         {activeView !== 'applications' && (
           <div className="cd-stats-row">
-            <StatCard icon="🎓" label="Internships Posted" value={dashboard?.counts?.internships ?? 0} color="#0D47A1" />
-            <StatCard icon="💼" label="Jobs Posted"        value={dashboard?.counts?.jobs ?? 0} color="#0D47A1" />
-            <StatCard icon="🔬" label="Problems Submitted" value={dashboard?.counts?.problems ?? 0} color="#0D47A1" />
-            <StatCard icon="📨" label="Total Applications" value={dashboard?.counts?.applications ?? 0} color="#0D47A1" />
+            <StatCard icon={<FaGraduationCap />} label="Internships Posted" value={dashboard?.counts?.internships ?? 0} color="#0D47A1" />
+            <StatCard icon={<FaBriefcase />} label="Jobs Posted"        value={dashboard?.counts?.jobs ?? 0} color="#0D47A1" />
+            <StatCard icon={<FaMicroscope />} label="Problems Submitted" value={dashboard?.counts?.problems ?? 0} color="#0D47A1" />
+            <StatCard icon={<FaEnvelopeOpen />} label="Total Applications" value={dashboard?.counts?.applications ?? 0} color="#0D47A1" />
           </div>
         )}
 
