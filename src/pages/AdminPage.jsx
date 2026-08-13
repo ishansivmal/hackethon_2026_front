@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { NavLink, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
-import { deleteUser, getUsers, updateUserRole } from '../api/admin'
+import { createUser, deleteUser, getUsers, updateUser, updateUserRole } from '../api/admin'
 import { useAuth } from '../context/useAuth'
 
 import AdminSidebar from '../components/admin/AdminSidebar'
@@ -52,6 +52,58 @@ export default function AdminPage() {
   useEffect(() => {
     fetchUsers()
   }, [fetchUsers])
+
+  const handleCreateUser = async (userData) => {
+    try {
+      const response = await createUser(userData)
+      setUsers((prev) => [...prev, response.data.user])
+      toast.success(`User ${response.data.user.name} created successfully!`)
+      Swal.fire({
+        title: 'User Created!',
+        text: `${response.data.user.name} (${response.data.user.email}) added to MySQL database.`,
+        icon: 'success',
+        confirmButtonColor: '#65DCD5',
+      })
+      return true
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to create user'
+      toast.error(msg)
+      Swal.fire({
+        title: 'Creation Error',
+        text: msg,
+        icon: 'error',
+        confirmButtonColor: '#65DCD5',
+      })
+      return false
+    }
+  }
+
+  const handleUserUpdate = async (id, userData) => {
+    try {
+      const response = await updateUser(id, userData)
+      setUsers((prev) =>
+        prev.map((item) => (item.id === id ? response.data.user : item)),
+      )
+      toast.success(`User updated successfully!`)
+      Swal.fire({
+        title: 'User Saved!',
+        text: `${response.data.user.name} (${response.data.user.email}) stored in database.`,
+        icon: 'success',
+        confirmButtonColor: '#65DCD5',
+      })
+      return true
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to update user'
+      toast.error(msg)
+      Swal.fire({
+        title: 'Update Error',
+        text: msg,
+        icon: 'error',
+        confirmButtonColor: '#65DCD5',
+      })
+      return false
+    }
+  }
 
   const handleRoleChange = async (id, role) => {
     const targetUser = users.find((item) => item.id === id)
@@ -126,7 +178,7 @@ export default function AdminPage() {
       toast.success(`User "${user.email}" deleted`)
       Swal.fire({
         title: 'Deleted!',
-        text: `User "${user.email}" was deleted.`,
+        text: `User "${user.email}" was deleted from database.`,
         icon: 'success',
         confirmButtonColor: '#65DCD5',
       })
@@ -215,7 +267,6 @@ export default function AdminPage() {
               <AdminDashboardView
                 users={users}
                 companies={companies}
-                loadingUsers={loadingUsers}
                 fetchUsers={fetchUsers}
                 currentUser={currentUser}
               />
@@ -228,6 +279,8 @@ export default function AdminPage() {
                 users={users}
                 loadingUsers={loadingUsers}
                 currentUser={currentUser}
+                handleCreateUser={handleCreateUser}
+                handleUserUpdate={handleUserUpdate}
                 handleRoleChange={handleRoleChange}
                 handleDelete={handleDelete}
                 pendingRoles={pendingRoles}
