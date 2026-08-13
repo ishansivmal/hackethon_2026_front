@@ -9,7 +9,6 @@ import AdminSidebar from '../components/admin/AdminSidebar'
 import AdminDashboardView from '../components/admin/AdminDashboardView'
 import AdminUsersPage from '../components/admin/AdminUsersPage'
 import AdminCompaniesPage from '../components/admin/AdminCompaniesPage'
-import AdminReportsPage from '../components/admin/AdminReportsPage'
 import AdminNotificationsPage from '../components/admin/AdminNotificationsPage'
 
 export default function AdminPage() {
@@ -225,29 +224,6 @@ export default function AdminPage() {
     toast.info('Notification removed')
   }
 
-  const handleExportReport = () => {
-    const reportData = {
-      generatedAt: new Date().toISOString(),
-      totalUsers: users.length,
-      adminsCount: users.filter((u) => u.role === 'admin').length,
-      normalUsersCount: users.filter((u) => u.role === 'user' || u.role === 'jobseeker').length,
-      companyUsersCount: users.filter((u) => u.role === 'company').length,
-      pendingCompanies: companies.filter((c) => c.status === 'Pending').length,
-      usersList: users,
-      companiesList: companies,
-    }
-    const blob = new Blob([JSON.stringify(reportData, null, 2)], {
-      type: 'application/json',
-    })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `admin_summary_report_${new Date().toISOString().slice(0, 10)}.json`
-    link.click()
-    URL.revokeObjectURL(url)
-    toast.success('Summary report downloaded successfully!')
-  }
-
   return (
     <div className="admin-layout">
       {/* Admin Sidebar Component */}
@@ -281,9 +257,7 @@ export default function AdminPage() {
                 currentUser={currentUser}
                 handleCreateUser={handleCreateUser}
                 handleUserUpdate={handleUserUpdate}
-                handleRoleChange={handleRoleChange}
                 handleDelete={handleDelete}
-                pendingRoles={pendingRoles}
               />
             }
           />
@@ -294,12 +268,6 @@ export default function AdminPage() {
                 companies={companies}
                 handleUpdateCompanyStatus={handleUpdateCompanyStatus}
               />
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <AdminReportsPage handleExportReport={handleExportReport} />
             }
           />
           <Route

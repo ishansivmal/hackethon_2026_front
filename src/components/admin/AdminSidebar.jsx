@@ -1,15 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
-export default function AdminSidebar({
-  users = [],
-  companies = [],
-  notifications = [],
-  currentUser,
-}) {
-  const pendingCompaniesCount = companies.filter(
-    (c) => c.status === 'Pending',
-  ).length
-
+export default function AdminSidebar({ currentUser }) {
   return (
     <aside className="admin-sidebar">
       <div className="sidebar-header">
@@ -40,7 +31,6 @@ export default function AdminSidebar({
         >
           <span className="sidebar-icon">👥</span>
           <span>User Management</span>
-          <span className="sidebar-badge">{users.length}</span>
         </NavLink>
 
         <NavLink
@@ -51,21 +41,6 @@ export default function AdminSidebar({
         >
           <span className="sidebar-icon">🏢</span>
           <span>Company Management</span>
-          {pendingCompaniesCount > 0 && (
-            <span className="sidebar-badge badge-warning">
-              {pendingCompaniesCount}
-            </span>
-          )}
-        </NavLink>
-
-        <NavLink
-          to="/admin/reports"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? 'active' : ''}`
-          }
-        >
-          <span className="sidebar-icon">📈</span>
-          <span>Reports</span>
         </NavLink>
 
         <NavLink
@@ -76,7 +51,6 @@ export default function AdminSidebar({
         >
           <span className="sidebar-icon">🔔</span>
           <span>Notifications</span>
-          <span className="sidebar-badge">{notifications.length}</span>
         </NavLink>
       </nav>
 
