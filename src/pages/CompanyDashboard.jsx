@@ -6,6 +6,7 @@ import { getCompanyDashboard } from '../api/company'
 import PostInternship from '../components/company/PostInternship'
 import PostJob from '../components/company/PostJob'
 import PostProblem from '../components/company/PostProblem'
+import AppliedApplications from '../components/company/AppliedApplications'
 import '../styles/CompanyDashboard.css'
 
 // ─── Nav items config ─────────────────────────────────────────────────────────
@@ -29,6 +30,13 @@ const NAV_ITEMS = [
     label: 'Post Problem',
     icon: '🔬',
     desc: 'Submit a company challenge',
+    color: '#2196F3',   /* theme accent */
+  },
+  {
+    id: 'applications',
+    label: 'Applied Applications',
+    icon: '📋',
+    desc: 'See who applied to your listings',
     color: '#2196F3',   /* theme accent */
   },
 ]
@@ -174,10 +182,12 @@ export default function CompanyDashboard() {
             <span /><span /><span />
           </button>
 
-          <div className="cd-topbar-title">
-            <span className="cd-topbar-icon">{activeItem?.icon}</span>
-            <h1 className="cd-topbar-heading">{activeItem?.label}</h1>
-          </div>
+          {activeView !== 'applications' && (
+            <div className="cd-topbar-title">
+              <span className="cd-topbar-icon">{activeItem?.icon}</span>
+              <h1 className="cd-topbar-heading">{activeItem?.label}</h1>
+            </div>
+          )}
 
           <div className="cd-topbar-badge">
             <span className="cd-status-dot" />
@@ -186,18 +196,28 @@ export default function CompanyDashboard() {
         </header>
 
         {/* Stats row */}
-        <div className="cd-stats-row">
-          <StatCard icon="🎓" label="Internships Posted" value={dashboard?.counts?.internships ?? 0} color="#0D47A1" />
-          <StatCard icon="💼" label="Jobs Posted"        value={dashboard?.counts?.jobs ?? 0} color="#0D47A1" />
-          <StatCard icon="🔬" label="Problems Submitted" value={dashboard?.counts?.problems ?? 0} color="#0D47A1" />
-          <StatCard icon="📨" label="Total Applications" value={dashboard?.counts?.applications ?? 0} color="#0D47A1" />
-        </div>
+        {activeView !== 'applications' && (
+          <div className="cd-stats-row">
+            <StatCard icon="🎓" label="Internships Posted" value={dashboard?.counts?.internships ?? 0} color="#0D47A1" />
+            <StatCard icon="💼" label="Jobs Posted"        value={dashboard?.counts?.jobs ?? 0} color="#0D47A1" />
+            <StatCard icon="🔬" label="Problems Submitted" value={dashboard?.counts?.problems ?? 0} color="#0D47A1" />
+            <StatCard icon="📨" label="Total Applications" value={dashboard?.counts?.applications ?? 0} color="#0D47A1" />
+          </div>
+        )}
 
         {/* Content panel */}
         <div className="cd-content">
           {activeView === 'internship' && <PostInternship items={dashboard?.internships ?? []} onPosted={loadDashboard} />}
           {activeView === 'job'        && <PostJob        items={dashboard?.jobs ?? []}        onPosted={loadDashboard} />}
           {activeView === 'problem'    && <PostProblem    items={dashboard?.problems ?? []}    onPosted={loadDashboard} />}
+          {activeView === 'applications' && (
+            <AppliedApplications
+              internships={dashboard?.internships ?? []}
+              jobs={dashboard?.jobs ?? []}
+              problems={dashboard?.problems ?? []}
+              onUpdated={loadDashboard}
+            />
+          )}
         </div>
 
       </div>
