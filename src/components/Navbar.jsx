@@ -53,9 +53,9 @@ export default function Navbar() {
                   Post Vacancies
                 </NavLink>
               )}
-              {user.role === 'jobseeker' && (
-                <NavLink to={homePath} className="nav-link" onClick={closeMenu}>
-                  Browse Jobs
+              {user.role !== 'company' && user.role !== 'admin' && (
+                <NavLink to="/user-panel" className="nav-link" onClick={closeMenu}>
+                  User Panel
                 </NavLink>
               )}
               {user.role === 'admin' && (
