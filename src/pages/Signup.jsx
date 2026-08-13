@@ -14,6 +14,7 @@ export default function Signup() {
     password: '',
     confirmPassword: '',
   })
+  const [role, setRole] = useState('jobseeker')
   const [loading, setLoading] = useState(false)
 
   const handleChange = (event) => {
@@ -31,8 +32,8 @@ export default function Signup() {
     setLoading(true)
 
     try {
-      await register(form.name, form.email, form.password)
-      toast.success('Account created! Please log in.')
+      await register(form.name, form.email, form.password, role)
+      toast.success('Account created! A confirmation link was sent to your email.')
       navigate('/login')
     } catch (err) {
       toast.error(err.response?.data?.message || 'Sign up failed. Please try again.')
@@ -47,6 +48,28 @@ export default function Signup() {
         <h1 className="auth-title">Create account</h1>
         <p className="auth-subtitle">Join Hackathon 2026</p>
 
+        <label className="form-label">I want to</label>
+        <div className="role-options">
+          <button
+            type="button"
+            className={`role-option ${role === 'jobseeker' ? 'active' : ''}`}
+            onClick={() => setRole('jobseeker')}
+            aria-pressed={role === 'jobseeker'}
+          >
+            <strong className="role-option-title">Job Seeker</strong>
+            <span className="role-option-desc">Find and apply for job vacancies</span>
+          </button>
+
+          <button
+            type="button"
+            className={`role-option ${role === 'company' ? 'active' : ''}`}
+            onClick={() => setRole('company')}
+            aria-pressed={role === 'company'}
+          >
+            <strong className="role-option-title">Company</strong>
+            <span className="role-option-desc">Post and manage job vacancies</span>
+          </button>
+        </div>
 
         <label className="form-label" htmlFor="name">
           Name

@@ -1,25 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/useAuth'
-import { homePathFor } from '../utils/homePath'
-import AdminProfileModal from './admin/AdminProfileModal'
+import { useAuth } from '../../context/useAuth'
+import { homePathFor } from '../../utils/homePath'
+import AdminProfileModal from './AdminProfileModal'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
-  const [avatarUrl, setAvatarUrl] = useState(() => {
-    return localStorage.getItem('admin_avatar_url') || user?.avatarUrl || ''
-  })
-
-  useEffect(() => {
-    const handleAvatarChange = () => {
-      setAvatarUrl(localStorage.getItem('admin_avatar_url') || user?.avatarUrl || '')
-    }
-    window.addEventListener('admin_avatar_changed', handleAvatarChange)
-    return () => window.removeEventListener('admin_avatar_changed', handleAvatarChange)
-  }, [user])
 
   const closeMenu = () => setOpen(false)
 
@@ -64,9 +53,9 @@ export default function Navbar() {
                   Post Vacancies
                 </NavLink>
               )}
-              {user.role !== 'company' && user.role !== 'admin' && (
-                <NavLink to="/user-panel" className="nav-link" onClick={closeMenu}>
-                  User Panel
+              {user.role === 'jobseeker' && (
+                <NavLink to={homePath} className="nav-link" onClick={closeMenu}>
+                  Browse Jobs
                 </NavLink>
               )}
               {user.role === 'admin' && (
@@ -81,18 +70,10 @@ export default function Navbar() {
                   closeMenu()
                   setShowProfileModal(true)
                 }}
-                title="Click to view and update profile details"
+                title="Click to view profile details"
               >
-                <span className="user-avatar-badge" style={{ overflow: 'hidden', padding: 0 }}>
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={user.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-                    />
-                  ) : (
-                    user.name ? user.name[0].toUpperCase() : 'U'
-                  )}
+                <span className="user-avatar-badge">
+                  {user.name ? user.name[0].toUpperCase() : 'U'}
                 </span>
                 <span className="user-name-text">{user.name}</span>
               </button>
@@ -126,3 +107,4 @@ export default function Navbar() {
     </>
   )
 }
+

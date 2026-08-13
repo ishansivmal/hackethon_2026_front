@@ -4,6 +4,8 @@ export const registerUser = (userData) => api.post('/auth/register', userData)
 
 export const loginUser = (credentials) => api.post('/auth/login', credentials)
 
+export const confirmEmail = (token) => api.post('/auth/confirm-email', { token })
+
 export const googleAuth = (idToken) => api.post('/auth/google', { idToken })
 
 export const logoutUser = (refreshToken) =>

@@ -1,32 +1,43 @@
-import { Link } from 'react-router-dom'
-import { useAuth } from '../context/useAuth'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { FaGraduationCap, FaBriefcase, FaPuzzlePiece, FaMagic } from 'react-icons/fa'
+import './Home.css'
+
+const TABS = [
+  { to: '/internships', label: 'Internships', icon: <FaGraduationCap /> },
+  { to: '/jobs', label: 'Jobs', icon: <FaBriefcase /> },
+  { to: '/problems', label: 'Problems', icon: <FaPuzzlePiece /> },
+]
 
 export default function Home() {
-  const { user } = useAuth()
+  const location = useLocation()
 
   return (
-    <section className="home">
-      <h1>Hackathon 2026</h1>
-      <p>
-        A full-stack starter with React, Vite and an Express + Sequelize
-        backend.
-      </p>
+    <section className="customer-layout">
+      <header className="home-hero">
+        <span className="home-badge"><FaMagic /> Opportunity Hub</span>
+        <h1 className="home-title">Discover Opportunities</h1>
+        <p className="home-subtitle">
+          Explore the latest internships, jobs, and coding challenges tailored for you.
+        </p>
+      </header>
 
-      <div className="home-actions">
-        {user ? (
-          <Link to="/dashboard" className="btn btn-primary">
-            Go to Dashboard
-          </Link>
-        ) : (
-          <>
-            <Link to="/signup" className="btn btn-primary">
-              Get Started
-            </Link>
-            <Link to="/login" className="btn btn-outline">
-              Login
-            </Link>
-          </>
-        )}
+      <nav className="home-nav-container">
+        {TABS.map((tab) => {
+          const isActive =
+            location.pathname === tab.to ||
+            (location.pathname === '/' && tab.to === '/internships')
+
+          return (
+            <NavLink key={tab.to} to={tab.to} className={`home-nav-link ${isActive ? 'active' : ''}`}>
+              <span className="home-tab-icon">{tab.icon}</span>
+              <span className="home-tab-text">{tab.label}</span>
+            </NavLink>
+          )
+        })}
+      </nav>
+
+      <div className="home-content-wrapper">
+        <Outlet />
       </div>
     </section>
   )
