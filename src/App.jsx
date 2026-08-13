@@ -9,7 +9,7 @@ import Signup from './pages/Signup'
 import ConfirmEmail from './pages/ConfirmEmail'
 import CompanyDashboard from './pages/CompanyDashboard'
 import JobSeekerDashboard from './pages/customerPage'
-import AdminDashboard from './pages/AdminDashboard'
+import AdminPage from './pages/AdminPage'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Internships from './components/customer/Internships'
@@ -51,7 +51,7 @@ function App() {
           <Route path="/company/dashboard" element={<CompanyDashboard />} />
           <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} />
           <Route path="/admin/*" element={<AdminRoute />}>
-            <Route path="*" element={<AdminDashboard />} />
+            <Route path="*" element={<AdminPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
