@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import Swal from 'sweetalert2'
 import { toast } from 'react-toastify'
-import { updateApplicationSelection } from '../../api/company'
+import { updateApplicationSelection, rankApplicants } from '../../api/company'
 
 const CATEGORIES = [
   { id: 'internship', icon: '🎓', label: 'Applied Internships' },
   { id: 'job', icon: '💼', label: 'Applied Jobs' },
   { id: 'problem', icon: '🔬', label: 'Applied Problems' },
 ]
+
+const AI_ENABLED = ['internship', 'job']
 
 function collectApplications(items, titleKey, type) {
   const rows = []
@@ -27,7 +29,26 @@ function applicationId(row) {
   return row.applied_internship_ID ?? row.applied_job_ID ?? row.applied_problem_ID
 }
 
-function ApplicantCard({ row, icon, onUpdated }) {
+function scoreKey(row) {
+  return `${row.type}-${applicationId(row)}`
+}
+
+function recColor(recommendation) {
+  if (recommendation === 'Shortlisted') return '#10b981'
+  if (recommendation === 'Reject') return '#ef4444'
+  return '#d97706'
+}
+
+function escapeHtml(value = '') {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+}
+
+function ApplicantCard({ row, icon, onUpdated, aiScore }) {
   const [updating, setUpdating] = useState(false)
   const applicantName = row.user?.name || 'Unknown applicant'
 
@@ -59,6 +80,35 @@ function ApplicantCard({ row, icon, onUpdated }) {
     }
   }
 
+  const showDetail = () => {
+    Swal.fire({
+      title: escapeHtml(applicantName),
+      html: `
+        <div style="text-align:left;">
+          <p style="font-size:14px;color:#374151;">${escapeHtml(aiScore.summary)}</p>
+          <div style="display:inline-block;font-size:24px;font-weight:800;color:#0D47A1;padding:10px 18px;border:2px solid #0D47A1;border-radius:12px;margin:8px 0;">
+            ${aiScore.score}/100
+          </div>
+          <p style="font-weight:700;color:#111827;margin:12px 0 4px;">✅ Strengths</p>
+          <ul style="margin:0;padding-left:18px;color:#374151;font-size:13px;">
+            ${aiScore.strengths.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}
+          </ul>
+          <p style="font-weight:700;color:#111827;margin:12px 0 4px;">⚠️ Weaknesses</p>
+          <ul style="margin:0;padding-left:18px;color:#374151;font-size:13px;">
+            ${aiScore.weaknesses.map((w) => `<li>${escapeHtml(w)}</li>`).join('')}
+          </ul>
+          <p style="margin-top:12px;">
+            <span style="display:inline-block;font-size:13px;font-weight:700;color:${recColor(aiScore.recommendation)};border:1px solid ${recColor(aiScore.recommendation)};border-radius:999px;padding:4px 12px;">
+              ${escapeHtml(aiScore.recommendation)}
+            </span>
+          </p>
+        </div>`,
+      width: 560,
+      confirmButtonText: 'Close',
+      confirmButtonColor: '#0D47A1',
+    })
+  }
+
   return (
     <article className={`cd-app-card${row.isSelected ? ' cd-app-card--selected' : ''}`}>
       <div className="cd-app-card-head">
@@ -67,6 +117,18 @@ function ApplicantCard({ row, icon, onUpdated }) {
           <h4 className="cd-app-name">{applicantName}</h4>
           {row.user?.email && <p className="cd-app-email">{row.user.email}</p>}
         </div>
+        {aiScore && (
+          <button
+            type="button"
+            className="cd-app-ai"
+            onClick={showDetail}
+            title="View AI fit analysis"
+            style={{ '--rec-color': recColor(aiScore.recommendation) }}
+          >
+            <span>🤖 #{aiScore.rank}</span>
+            <strong>{aiScore.score}%</strong>
+          </button>
+        )}
       </div>
       <p className="cd-app-posted">
         <span>{icon}</span>
@@ -100,6 +162,8 @@ function ApplicantCard({ row, icon, onUpdated }) {
 
 export default function AppliedApplications({ internships = [], jobs = [], problems = [], onUpdated }) {
   const [active, setActive] = useState('internship')
+  const [scores, setScores] = useState({})
+  const [ranking, setRanking] = useState(false)
 
   const buckets = {
     internship: collectApplications(internships, 'title', 'internship'),
@@ -109,9 +173,100 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
 
   const current = CATEGORIES.find((c) => c.id === active)
   const rows = buckets[active]
+  const supportsAi = AI_ENABLED.includes(active)
+
+  const showRankingSummary = (list) => {
+    const rowsHtml = list
+      .map((c) => {
+        const color = recColor(c.recommendation)
+        return `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(13,71,161,0.15);border-radius:10px;margin-bottom:8px;text-align:left;background:#f8fafc;">
+            <div style="min-width:0;">
+              <strong style="color:#0D47A1;">#${c.rank}</strong>
+              <span style="font-weight:700;color:#111827;"> ${escapeHtml(c.name)}</span>
+              <div style="font-size:13px;color:#4b5563;margin-top:2px;">${escapeHtml(c.summary)}</div>
+              <div style="margin-top:6px;">
+                <span style="display:inline-block;font-size:12px;font-weight:600;color:${color};border:1px solid ${color};border-radius:999px;padding:2px 10px;">${escapeHtml(c.recommendation)}</span>
+              </div>
+            </div>
+            <div style="flex-shrink:0;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#0D47A1;color:#fff;font-weight:700;font-size:16px;">${c.score}%</div>
+          </div>
+        `
+      })
+      .join('')
+
+    Swal.fire({
+      title: '🤖 Best Candidate Suggestions',
+      html: `
+        <div style="max-height:420px;overflow-y:auto;">${rowsHtml}</div>
+        <p style="font-size:12px;color:#9ca3af;margin:12px 0 0;text-align:left;">
+          Scores are AI-generated from each candidate's CV against your requirements.
+          Click any 🤖 badge on a card for the detailed analysis.
+        </p>`,
+      width: 640,
+      confirmButtonText: 'Got it',
+      confirmButtonColor: '#0D47A1',
+    })
+  }
+
+  const handleRank = async () => {
+    if (ranking || rows.length === 0) return
+
+    setRanking(true)
+    const accumulated = {}
+    const listingItems = active === 'internship' ? internships : jobs
+
+    for (const item of listingItems) {
+      const hasCvApplicants = (item.applications ?? []).some((a) => a.cv_url)
+      if (!hasCvApplicants) continue
+
+      const listingId = active === 'internship' ? item.id : item.job_ID
+      try {
+        const { data } = await rankApplicants(active, listingId)
+        ;(data.candidates ?? []).forEach((c, idx) => {
+          accumulated[`${active}-${c.id}`] = { ...c, rank: idx + 1 }
+        })
+      } catch (err) {
+        const msg = err.response?.data?.message || 'Failed to rank applicants'
+        toast.warning(msg)
+      }
+    }
+
+    setScores(accumulated)
+    setRanking(false)
+
+    const list = Object.values(accumulated).sort((a, b) => b.score - a.score)
+    if (list.length) {
+      showRankingSummary(list)
+    } else {
+      toast.info('No candidates could be ranked. Make sure applicants have uploaded CVs.')
+    }
+  }
 
   return (
     <div className="cd-view">
+      {supportsAi && (
+        <div className="cd-app-toolbar">
+          <div className="cd-app-toolbar-info">
+            <span className="cd-app-toolbar-icon">🤖</span>
+            <div>
+              <h3 className="cd-app-toolbar-title">AI Candidate Suggestions</h3>
+              <p className="cd-app-toolbar-sub">
+                Analyze each CV against your {active} requirements and rank applicants best-first.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="cd-app-ai-btn"
+            onClick={handleRank}
+            disabled={ranking || rows.length === 0}
+          >
+            {ranking ? '⏳ Analyzing CVs…' : '✨ Suggest Best Candidates'}
+          </button>
+        </div>
+      )}
+
       <div className="cd-cat-tabs">
         {CATEGORIES.map((cat) => (
           <button
@@ -134,6 +289,7 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
               row={row}
               icon={current.icon}
               onUpdated={onUpdated}
+              aiScore={scores[scoreKey(row)]}
             />
           ))}
         </div>

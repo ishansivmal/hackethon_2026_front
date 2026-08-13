@@ -16,3 +16,6 @@ export const deleteProblem = (id) => api.delete(`/company/problems/${id}`)
 
 export const updateApplicationSelection = (type, id, isSelected) =>
   api.put(`/company/applications/${type}/${id}`, { isSelected })
+
+export const rankApplicants = (type, id) =>
+  api.post(`/company/applications/rank/${type}/${id}`)
