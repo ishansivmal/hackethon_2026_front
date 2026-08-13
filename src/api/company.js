@@ -2,6 +2,9 @@ import api from './axios'
 
 export const getCompanyDashboard = () => api.get('/company/dashboard')
 
+export const getCompanyApplications = (type, page = 1, pageSize = 10) =>
+  api.get(`/company/applications/${type}`, { params: { page, pageSize } })
+
 export const postInternship = (data) => api.post('/company/internships', data)
 export const updateInternship = (id, data) => api.put(`/company/internships/${id}`, data)
 export const deleteInternship = (id) => api.delete(`/company/internships/${id}`)

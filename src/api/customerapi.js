@@ -1,7 +1,7 @@
 import api from './axios'
-export const getInternships = () => api.get('/public/internships')
-export const getJobs = () => api.get('/public/jobs')
-export const getProblems = () => api.get('/public/problems')
+export const getInternships = (page = 1, pageSize = 10) => api.get('/public/internships', { params: { page, pageSize } })
+export const getJobs = (page = 1, pageSize = 10) => api.get('/public/jobs', { params: { page, pageSize } })
+export const getProblems = (page = 1, pageSize = 10) => api.get('/public/problems', { params: { page, pageSize } })
 
 export const applyForInternship = (id, formData) => api.post(`/customer/apply/internship/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" }

@@ -1,28 +1,95 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Swal from 'sweetalert2'
 import { FaPlus, FaSearch, FaEye, FaPencilAlt, FaTrashAlt } from 'react-icons/fa'
+import { getUsers } from '../../api/admin'
+import Pagination from '../Pagination'
+
+const DEFAULT_COUNTS = { total: 0, admin: 0, user: 0, jobseeker: 0, company: 0 }
 
 export default function AdminUsersPage({
-  users,
-  loadingUsers,
   currentUser,
   handleCreateUser,
   handleUserUpdate,
   handleDelete,
 }) {
+  const [users, setUsers] = useState([])
+  const [counts, setCounts] = useState(DEFAULT_COUNTS)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [loading, setLoading] = useState(true)
+
   const [userSearch, setUserSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
 
-  const filteredUsers = users.filter((u) => {
-    const matchesSearch =
-      u.name?.toLowerCase().includes(userSearch.toLowerCase()) ||
-      u.email?.toLowerCase().includes(userSearch.toLowerCase())
-    const matchesRole = roleFilter === 'all' || u.role === roleFilter
-    return matchesSearch && matchesRole
-  })
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(userSearch), 300)
+    return () => clearTimeout(timer)
+  }, [userSearch])
 
-  const totalCount = users.length
-  const adminCount = users.filter((u) => u.role === 'admin').length
+  const loadUsers = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = {
+        page,
+        pageSize,
+        search: debouncedSearch || undefined,
+        role: roleFilter === 'all' ? undefined : roleFilter,
+      }
+      const { data } = await getUsers(params)
+      setUsers(data.users || [])
+      setTotal(data.total || 0)
+      setTotalPages(data.totalPages || 1)
+      setCounts(data.counts || DEFAULT_COUNTS)
+    } catch (err) {
+      console.error('Failed to load users:', err)
+      setUsers([])
+      setTotal(0)
+      setTotalPages(1)
+    } finally {
+      setLoading(false)
+    }
+  }, [page, pageSize, debouncedSearch, roleFilter])
+
+  useEffect(() => {
+    loadUsers()
+  }, [loadUsers])
+
+  const handleSearchChange = (e) => {
+    setUserSearch(e.target.value)
+    setPage(1)
+  }
+
+  const handleRoleChange = (e) => {
+    setRoleFilter(e.target.value)
+    setPage(1)
+  }
+
+  const handlePageSizeChange = (e) => {
+    setPageSize(Number(e.target.value))
+    setPage(1)
+  }
+
+  const handleCreate = async (userData) => {
+    const ok = await handleCreateUser(userData)
+    if (ok) {
+      setPage(1)
+      setUserSearch('')
+      loadUsers()
+    }
+  }
+
+  const handleUpdate = async (id, userData) => {
+    const ok = await handleUserUpdate(id, userData)
+    if (ok) loadUsers()
+  }
+
+  const handleRemove = async (user) => {
+    await handleDelete(user)
+    loadUsers()
+  }
 
   // Create New Admin Modal via SweetAlert
   const handleOpenAddAdminModal = () => {
@@ -69,7 +136,7 @@ export default function AdminUsersPage({
       },
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        handleCreateUser(result.value)
+        handleCreate(result.value)
       }
     })
   }
@@ -131,7 +198,7 @@ export default function AdminUsersPage({
       },
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        handleUserUpdate(u.id, result.value)
+        handleUpdate(u.id, result.value)
       }
     })
   }
@@ -170,11 +237,11 @@ export default function AdminUsersPage({
           <div className="badge-stat badge-active">
             <span className="dot dot-active"></span>
             <span>TOTAL</span>
-            <strong>{totalCount} Users</strong>
+            <strong>{counts.total} Users</strong>
           </div>
           <div className="badge-stat">
             <span>ADMINS</span>
-            <strong>{adminCount}</strong>
+            <strong>{counts.admin}</strong>
           </div>
         </div>
       </div>
@@ -195,14 +262,14 @@ export default function AdminUsersPage({
                 className="compact-search-input"
                 placeholder="Search user or email..."
                 value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
+                onChange={handleSearchChange}
               />
             </div>
 
             <select
               className="role-select compact-role-select"
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
+              onChange={handleRoleChange}
             >
               <option value="all">All Roles</option>
               <option value="user">User</option>
@@ -213,112 +280,123 @@ export default function AdminUsersPage({
           </div>
         </div>
 
-        {loadingUsers ? (
+        {loading ? (
           <p className="page-message">Loading users from database...</p>
-        ) : filteredUsers.length === 0 ? (
+        ) : users.length === 0 ? (
           <div className="empty-state-box">
             <p>No users found matching your search criteria.</p>
           </div>
         ) : (
-          <div className="table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '70px' }}>ID</th>
-                  <th style={{ width: '28%' }}>USER NAME</th>
-                  <th style={{ width: '38%' }}>EMAIL</th>
-                  <th style={{ width: '16%' }}>ROLE</th>
-                  <th style={{ textAlign: 'center', width: '180px' }}>ACTIONS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((u) => {
-                  const isSelf = u.id === currentUser?.id
-                  return (
-                    <tr key={u.id}>
-                      <td>
-                        <span className="id-tag">#{u.id}</span>
-                      </td>
-                      <td>
-                        <div className="user-table-cell">
-                          <span className="user-avatar-sm">
-                            {u.name?.[0] || 'U'}
+          <>
+            <div className="table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '70px' }}>ID</th>
+                    <th style={{ width: '28%' }}>USER NAME</th>
+                    <th style={{ width: '38%' }}>EMAIL</th>
+                    <th style={{ width: '16%' }}>ROLE</th>
+                    <th style={{ textAlign: 'center', width: '180px' }}>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => {
+                    const isSelf = u.id === currentUser?.id
+                    return (
+                      <tr key={u.id}>
+                        <td>
+                          <span className="id-tag">#{u.id}</span>
+                        </td>
+                        <td>
+                          <div className="user-table-cell">
+                            <span className="user-avatar-sm">
+                              {u.name?.[0] || 'U'}
+                            </span>
+                            <strong className="user-display-name">{u.name}</strong>
+                          </div>
+                        </td>
+                        <td className="email-col">{u.email}</td>
+                        <td>
+                          <span className={`role-badge role-badge-${u.role}`}>
+                            {(u.role || 'user').toUpperCase()}
                           </span>
-                          <strong className="user-display-name">{u.name}</strong>
-                        </div>
-                      </td>
-                      <td className="email-col">{u.email}</td>
-                      <td>
-                        <span className={`role-badge role-badge-${u.role}`}>
-                          {(u.role || 'user').toUpperCase()}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
-                          <button
-                            type="button"
-                            style={{
-                              font: 'inherit',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              padding: '5px 10px',
-                              borderRadius: '6px',
-                              border: '1px solid rgba(59, 130, 246, 0.3)',
-                              background: 'rgba(59, 130, 246, 0.12)',
-                              color: '#3b82f6',
-                              cursor: 'pointer',
-                            }}
-                            onClick={() => handleViewUser(u)}
-                            title="View User Details"
-                          >
-                            <FaEye /> View
-                          </button>
-                          <button
-                            type="button"
-                            style={{
-                              font: 'inherit',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              padding: '5px 10px',
-                              borderRadius: '6px',
-                              border: '1px solid rgba(20, 184, 166, 0.3)',
-                              background: 'rgba(20, 184, 166, 0.12)',
-                              color: '#14b8a6',
-                              cursor: 'pointer',
-                            }}
-                            onClick={() => handleEditUser(u)}
-                            title="Edit User Details"
-                          >
-                            <FaPencilAlt /> Edit
-                          </button>
-                          <button
-                            type="button"
-                            style={{
-                              font: 'inherit',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              padding: '5px 10px',
-                              borderRadius: '6px',
-                              border: '1px solid rgba(239, 68, 68, 0.3)',
-                              background: 'rgba(239, 68, 68, 0.12)',
-                              color: '#ef4444',
-                              cursor: isSelf ? 'not-allowed' : 'pointer',
-                              opacity: isSelf ? 0.5 : 1,
-                            }}
-                            disabled={isSelf}
-                            onClick={() => handleDelete(u)}
-                            title={isSelf ? 'Cannot delete own account' : 'Delete User'}
-                          >
-                            <FaTrashAlt /> Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                            <button
+                              type="button"
+                              style={{
+                                font: 'inherit',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                padding: '5px 10px',
+                                borderRadius: '6px',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                background: 'rgba(59, 130, 246, 0.12)',
+                                color: '#3b82f6',
+                                cursor: 'pointer',
+                              }}
+                              onClick={() => handleViewUser(u)}
+                              title="View User Details"
+                            >
+                              <FaEye /> View
+                            </button>
+                            <button
+                              type="button"
+                              style={{
+                                font: 'inherit',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                padding: '5px 10px',
+                                borderRadius: '6px',
+                                border: '1px solid rgba(20, 184, 166, 0.3)',
+                                background: 'rgba(20, 184, 166, 0.12)',
+                                color: '#14b8a6',
+                                cursor: 'pointer',
+                              }}
+                              onClick={() => handleEditUser(u)}
+                              title="Edit User Details"
+                            >
+                              <FaPencilAlt /> Edit
+                            </button>
+                            <button
+                              type="button"
+                              style={{
+                                font: 'inherit',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                padding: '5px 10px',
+                                borderRadius: '6px',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                background: 'rgba(239, 68, 68, 0.12)',
+                                color: '#ef4444',
+                                cursor: isSelf ? 'not-allowed' : 'pointer',
+                                opacity: isSelf ? 0.5 : 1,
+                              }}
+                              disabled={isSelf}
+                              onClick={() => handleRemove(u)}
+                              title={isSelf ? 'Cannot delete own account' : 'Delete User'}
+                            >
+                              <FaTrashAlt /> Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              pageSize={pageSize}
+              onPageChange={setPage}
+              onPageSizeChange={handlePageSizeChange}
+            />
+          </>
         )}
       </div>
     </div>

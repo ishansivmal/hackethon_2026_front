@@ -26,11 +26,9 @@ export default function AdminPage() {
 
   // Users state
   const [users, setUsers] = useState([])
-  const [loadingUsers, setLoadingUsers] = useState(true)
 
   // Companies state
   const [companies, setCompanies] = useState([])
-  const [loadingCompanies, setLoadingCompanies] = useState(true)
 
   // Notifications state
   const [notifications, setNotifications] = useState([
@@ -40,28 +38,22 @@ export default function AdminPage() {
   const [notifForm, setNotifForm] = useState({ title: '', audience: 'All Users', priority: 'Normal', message: '' })
 
   const fetchUsers = useCallback(async () => {
-    setLoadingUsers(true)
     try {
       const response = await getUsers()
       setUsers(response.data.users || [])
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to load users'
       toast.error(msg)
-    } finally {
-      setLoadingUsers(false)
     }
   }, [])
 
   const fetchCompanies = useCallback(async () => {
-    setLoadingCompanies(true)
     try {
       const response = await getCompanies()
       setCompanies(response.data.companies || [])
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to load companies'
       toast.error(msg)
-    } finally {
-      setLoadingCompanies(false)
     }
   }, [])
 
@@ -298,8 +290,6 @@ export default function AdminPage() {
             path="/users"
             element={
               <AdminUsersPage
-                users={users}
-                loadingUsers={loadingUsers}
                 currentUser={currentUser}
                 handleCreateUser={handleCreateUser}
                 handleUserUpdate={handleUserUpdate}
@@ -311,8 +301,6 @@ export default function AdminPage() {
             path="/companies"
             element={
               <AdminCompaniesPage
-                companies={companies}
-                loadingCompanies={loadingCompanies}
                 handleCreateCompany={handleCreateCompany}
                 handleUpdateCompany={handleUpdateCompany}
                 handleDeleteCompany={handleDeleteCompany}

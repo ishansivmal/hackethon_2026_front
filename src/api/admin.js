@@ -1,6 +1,6 @@
 import api from './axios'
 
-export const getUsers = () => api.get('/admin/users')
+export const getUsers = (params) => api.get('/admin/users', { params })
 
 export const createUser = (userData) => api.post('/admin/users', userData)
 
@@ -12,7 +12,7 @@ export const updateUser = (id, userData) =>
 
 export const deleteUser = (id) => api.delete(`/admin/users/${id}`)
 
-export const getCompanies = () => api.get('/admin/companies')
+export const getCompanies = (params) => api.get('/admin/companies', { params })
 
 export const createCompany = (companyData) =>
   api.post('/admin/companies', companyData)

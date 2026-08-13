@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Swal from 'sweetalert2'
 import { toast } from 'react-toastify'
-import { updateApplicationSelection, rankApplicants } from '../../api/company'
+import { updateApplicationSelection, rankApplicants, getCompanyApplications } from '../../api/company'
+import Pagination from '../Pagination'
 import {
   FaGraduationCap,
   FaBriefcase,
@@ -24,19 +25,7 @@ const CATEGORIES = [
 
 const AI_ENABLED = ['internship', 'job']
 
-function collectApplications(items, titleKey, type) {
-  const rows = []
-  items.forEach((item) => {
-    ;(item.applications ?? []).forEach((app) => {
-      rows.push({
-        ...app,
-        type,
-        postedTitle: item[titleKey],
-      })
-    })
-  })
-  return rows
-}
+const RANK_PAGE_SIZE = 3
 
 function applicationId(row) {
   return row.applied_internship_ID ?? row.applied_job_ID ?? row.applied_problem_ID
@@ -204,67 +193,149 @@ function ApplicantCard({ row, icon, onUpdated, aiScore }) {
   )
 }
 
-export default function AppliedApplications({ internships = [], jobs = [], problems = [], onUpdated }) {
+export default function AppliedApplications({ internships = [], jobs = [], onUpdated }) {
   const [active, setActive] = useState('internship')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [rows, setRows] = useState([])
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(false)
   const [scores, setScores] = useState({})
   const [ranking, setRanking] = useState(false)
 
-  const buckets = {
-    internship: collectApplications(internships, 'title', 'internship'),
-    job: collectApplications(jobs, 'position', 'job'),
-    problem: collectApplications(problems, 'description', 'problem'),
-  }
-
   const current = CATEGORIES.find((c) => c.id === active)
-  const rows = buckets[active]
   const supportsAi = AI_ENABLED.includes(active)
 
+  useEffect(() => {
+    let cancelled = false
+
+    setLoading(true)
+    setScores({})
+
+    getCompanyApplications(active, page, pageSize)
+      .then(({ data }) => {
+        if (cancelled) return
+        setRows(data.rows ?? [])
+        setTotal(data.total ?? 0)
+        setTotalPages(data.totalPages ?? 1)
+        setLoading(false)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        toast.error(err.response?.data?.message || 'Failed to load applications')
+        setRows([])
+        setTotal(0)
+        setTotalPages(1)
+        setLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [active, page, pageSize])
+
+  const handleTabChange = (id) => {
+    if (id === active) return
+    setActive(id)
+    setPage(1)
+  }
+
+  const handlePageSizeChange = (event) => {
+    setPageSize(Number(event.target.value))
+    setPage(1)
+  }
+
   const showRankingSummary = (groups) => {
-    const sectionsHtml = groups
-      .map((group) => {
-        const rowsHtml = group.candidates
-          .map((c) => {
-            const color = recColor(c.recommendation)
-            return `
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(13,71,161,0.15);border-radius:10px;margin-bottom:8px;text-align:left;background:#f8fafc;">
-                <div style="min-width:0;">
-                  <strong style="color:#0D47A1;">#${c.rank}</strong>
-                  <span style="font-weight:700;color:#111827;"> ${escapeHtml(c.name)}</span>
-                  <div style="font-size:13px;color:#4b5563;margin-top:2px;">${escapeHtml(c.summary)}</div>
-                  <div style="margin-top:6px;">
-                    <span style="display:inline-block;font-size:12px;font-weight:600;color:${color};border:1px solid ${color};border-radius:999px;padding:2px 10px;">${escapeHtml(c.recommendation)}</span>
-                  </div>
-                </div>
-                <div style="flex-shrink:0;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#0D47A1;color:#fff;font-weight:700;font-size:16px;">${c.score}%</div>
+    const pageState = groups.map(() => 1)
+
+    const candidateRowHtml = (c) => {
+      const color = recColor(c.recommendation)
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(13,71,161,0.15);border-radius:10px;margin-bottom:8px;text-align:left;background:#f8fafc;">
+          <div style="min-width:0;">
+            <strong style="color:#0D47A1;">#${c.rank}</strong>
+            <span style="font-weight:700;color:#111827;"> ${escapeHtml(c.name)}</span>
+            <div style="font-size:13px;color:#4b5563;margin-top:2px;">${escapeHtml(c.summary)}</div>
+            <div style="margin-top:6px;">
+              <span style="display:inline-block;font-size:12px;font-weight:600;color:${color};border:1px solid ${color};border-radius:999px;padding:2px 10px;">${escapeHtml(c.recommendation)}</span>
+            </div>
+          </div>
+          <div style="flex-shrink:0;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#0D47A1;color:#fff;font-weight:700;font-size:16px;">${c.score}%</div>
+        </div>
+      `
+    }
+
+    const buildHtml = () => {
+      const sectionsHtml = groups
+        .map((group, groupIdx) => {
+          const totalPages = Math.max(1, Math.ceil(group.candidates.length / RANK_PAGE_SIZE))
+          const currentPage = pageState[groupIdx]
+          const start = (currentPage - 1) * RANK_PAGE_SIZE
+          const pageCandidates = group.candidates.slice(start, start + RANK_PAGE_SIZE)
+
+          const rowsHtml = pageCandidates.map(candidateRowHtml).join('')
+
+          const navHtml = `
+              <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:6px;">
+                <button type="button" class="rank-prev" data-group="${groupIdx}" ${currentPage <= 1 ? 'disabled' : ''} style="font:inherit;font-size:12px;font-weight:700;padding:6px 12px;border:none;border-radius:8px;background:#0D47A1;color:#fff;cursor:pointer;${currentPage <= 1 ? 'opacity:.45;cursor:not-allowed;' : ''}">‹ Prev</button>
+                <span style="font-size:12px;color:#4b5563;">Page ${currentPage}/${totalPages}</span>
+                <button type="button" class="rank-next" data-group="${groupIdx}" ${currentPage >= totalPages ? 'disabled' : ''} style="font:inherit;font-size:12px;font-weight:700;padding:6px 12px;border:none;border-radius:8px;background:#0D47A1;color:#fff;cursor:pointer;${currentPage >= totalPages ? 'opacity:.45;cursor:not-allowed;' : ''}">Next ›</button>
               </div>
             `
-          })
-          .join('')
 
-        return `
-          <div style="margin-bottom:18px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;">
-              <strong style="color:#0D47A1;font-size:15px;">${escapeHtml(group.listingTitle)}</strong>
-              <span style="font-size:12px;color:#4b5563;background:#e0e7ff;border-radius:999px;padding:2px 10px;flex-shrink:0;">${group.candidates.length} candidate${group.candidates.length === 1 ? '' : 's'}</span>
+          return `
+            <div id="rank-group-${groupIdx}" style="margin-bottom:18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;">
+                <strong style="color:#0D47A1;font-size:15px;">${escapeHtml(group.listingTitle)}</strong>
+                <span style="font-size:12px;color:#4b5563;background:#e0e7ff;border-radius:999px;padding:2px 10px;flex-shrink:0;">${group.candidates.length} candidate${group.candidates.length === 1 ? '' : 's'}</span>
+              </div>
+              ${rowsHtml}
+              ${navHtml}
             </div>
-            ${rowsHtml}
-          </div>
-        `
+          `
+        })
+        .join('')
+
+      return `
+        <div id="rank-scroll" style="max-height:420px;overflow-y:auto;">${sectionsHtml}</div>
+        <p style="font-size:12px;color:#9ca3af;margin:12px 0 0;text-align:left;">
+          Candidates are grouped by the ${active} they applied to, ranked best-first, showing ${RANK_PAGE_SIZE} per page per listing.
+          Scores are AI-generated from each candidate's CV against that listing's requirements.
+          Click any AI badge on a card for the detailed analysis.
+        </p>`
+    }
+
+    const wireNav = () => {
+      const container = Swal.getHtmlContainer()
+      if (!container) return
+
+      container.querySelectorAll('[data-group]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const groupIdx = Number(btn.dataset.group)
+          const group = groups[groupIdx]
+          const totalPages = Math.max(1, Math.ceil(group.candidates.length / RANK_PAGE_SIZE))
+
+          if (btn.classList.contains('rank-prev')) {
+            pageState[groupIdx] = Math.max(1, pageState[groupIdx] - 1)
+          } else {
+            pageState[groupIdx] = Math.min(totalPages, pageState[groupIdx] + 1)
+          }
+
+          Swal.update({ html: buildHtml() })
+          Swal.getHtmlContainer()?.querySelector(`#rank-group-${groupIdx}`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+          wireNav()
+        })
       })
-      .join('')
+    }
 
     Swal.fire({
       title: 'Best Candidate Suggestions',
-      html: `
-        <div style="max-height:420px;overflow-y:auto;">${sectionsHtml}</div>
-        <p style="font-size:12px;color:#9ca3af;margin:12px 0 0;text-align:left;">
-          Candidates are grouped by the ${active} they applied to and ranked best-first within each group.
-          Scores are AI-generated from each candidate's CV against that listing's requirements.
-          Click any AI badge on a card for the detailed analysis.
-        </p>`,
+      html: buildHtml(),
       width: 640,
       confirmButtonText: 'Got it',
       confirmButtonColor: '#0D47A1',
+      didOpen: wireNav,
     })
   }
 
@@ -337,7 +408,7 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
             type="button"
             className="cd-app-ai-btn"
             onClick={handleRank}
-            disabled={ranking || rows.length === 0}
+            disabled={ranking || loading || rows.length === 0}
           >
             {ranking ? <><FaHourglassHalf /> Analyzing CVs…</> : <><FaMagic /> Suggest Best Candidates</>}
           </button>
@@ -350,7 +421,7 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
             key={cat.id}
             type="button"
             className={`cd-cat-tab${active === cat.id ? ' cd-cat-tab--active' : ''}`}
-            onClick={() => setActive(cat.id)}
+            onClick={() => handleTabChange(cat.id)}
           >
             <span className="cd-cat-tab-icon">{cat.icon}</span>
             <span className="cd-cat-tab-label">{cat.label}</span>
@@ -358,18 +429,30 @@ export default function AppliedApplications({ internships = [], jobs = [], probl
         ))}
       </div>
 
-      {rows.length > 0 ? (
-        <div className="cd-app-grid">
-          {rows.map((row) => (
-            <ApplicantCard
-              key={`${applicationId(row)}-${row.user_ID}`}
-              row={row}
-              icon={current.icon}
-              onUpdated={onUpdated}
-              aiScore={scores[scoreKey(row)]}
-            />
-          ))}
-        </div>
+      {loading ? (
+        <p className="cd-posted-empty">Loading applications…</p>
+      ) : rows.length > 0 ? (
+        <>
+          <div className="cd-app-grid">
+            {rows.map((row) => (
+              <ApplicantCard
+                key={`${applicationId(row)}-${row.user_ID}`}
+                row={row}
+                icon={current.icon}
+                onUpdated={onUpdated}
+                aiScore={scores[scoreKey(row)]}
+              />
+            ))}
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </>
       ) : (
         <p className="cd-posted-empty">
           No {current.label.toLowerCase()} yet. Applications will appear here when a job seeker

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Swal from 'sweetalert2'
 import {
   FaBuilding,
@@ -10,6 +10,8 @@ import {
   FaTrashAlt,
   FaRecycle,
 } from 'react-icons/fa'
+import { getCompanies } from '../../api/admin'
+import Pagination from '../Pagination'
 
 const STATUS_CONFIG = {
   all: { label: 'ALL', icon: <FaBuilding />, color: '#2196F3', bg: 'rgba(33, 150, 243, 0.12)', border: 'rgba(33, 150, 243, 0.4)' },
@@ -18,23 +20,83 @@ const STATUS_CONFIG = {
   suspended: { label: 'SUSPENDED', icon: <FaBan />, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.4)' },
 }
 
+const DEFAULT_COUNTS = { total: 0, pending: 0, approved: 0, suspended: 0 }
+
 export default function AdminCompaniesPage({
-  companies,
-  loadingCompanies,
   handleCreateCompany,
   handleUpdateCompany,
   handleDeleteCompany,
   handleUpdateCompanyStatus,
 }) {
+  const [companies, setCompanies] = useState([])
+  const [counts, setCounts] = useState(DEFAULT_COUNTS)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [loading, setLoading] = useState(true)
+
   const [companyFilter, setCompanyFilter] = useState('all')
 
-  const filteredCompanies = companies.filter((c) => {
-    if (companyFilter === 'all') return true
-    return (c.status || '').toLowerCase() === companyFilter.toLowerCase()
-  })
+  const loadCompanies = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = {
+        page,
+        pageSize,
+        status: companyFilter === 'all' ? undefined : companyFilter,
+      }
+      const { data } = await getCompanies(params)
+      setCompanies(data.companies || [])
+      setTotal(data.total || 0)
+      setTotalPages(data.totalPages || 1)
+      setCounts(data.counts || DEFAULT_COUNTS)
+    } catch (err) {
+      console.error('Failed to load companies:', err)
+      setCompanies([])
+      setTotal(0)
+      setTotalPages(1)
+    } finally {
+      setLoading(false)
+    }
+  }, [page, pageSize, companyFilter])
 
-  const totalCompanies = companies.length
-  const pendingCount = companies.filter((c) => (c.status || '').toLowerCase() === 'pending').length
+  useEffect(() => {
+    loadCompanies()
+  }, [loadCompanies])
+
+  const handleFilterChange = (statusKey) => {
+    setCompanyFilter(statusKey)
+    setPage(1)
+  }
+
+  const handlePageSizeChange = (e) => {
+    setPageSize(Number(e.target.value))
+    setPage(1)
+  }
+
+  const handleCreate = async (companyData) => {
+    const ok = await handleCreateCompany(companyData)
+    if (ok) {
+      setPage(1)
+      loadCompanies()
+    }
+  }
+
+  const handleUpdate = async (id, companyData) => {
+    const ok = await handleUpdateCompany(id, companyData)
+    if (ok) loadCompanies()
+  }
+
+  const handleUpdateStatus = async (id, status) => {
+    await handleUpdateCompanyStatus(id, status)
+    loadCompanies()
+  }
+
+  const handleRemove = async (company) => {
+    await handleDeleteCompany(company)
+    loadCompanies()
+  }
 
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A'
@@ -137,7 +199,7 @@ export default function AdminCompaniesPage({
       },
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        handleCreateCompany(result.value)
+        handleCreate(result.value)
       }
     })
   }
@@ -208,7 +270,7 @@ export default function AdminCompaniesPage({
       },
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        handleUpdateCompany(c.id, result.value)
+        handleUpdate(c.id, result.value)
       }
     })
   }
@@ -223,7 +285,7 @@ export default function AdminCompaniesPage({
       })
       return
     }
-    handleDeleteCompany(c)
+    handleRemove(c)
   }
 
   const onSuspendCompany = (c) => {
@@ -239,7 +301,7 @@ export default function AdminCompaniesPage({
       reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        handleUpdateCompanyStatus(c.id, 'Suspended')
+        handleUpdateStatus(c.id, 'Suspended')
       }
     })
   }
@@ -257,7 +319,7 @@ export default function AdminCompaniesPage({
       reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        handleUpdateCompanyStatus(c.id, 'Approved')
+        handleUpdateStatus(c.id, 'Approved')
       }
     })
   }
@@ -272,36 +334,15 @@ export default function AdminCompaniesPage({
 
         {/* Top-right summary badges + Add Company Button */}
         <div className="header-stat-badges" style={{ gap: '12px' }}>
-{/*           <button
-            type="button"
-            style={{
-              font: 'inherit',
-              fontSize: '13px',
-              fontWeight: '600',
-              padding: '8px 14px',
-              borderRadius: '8px',
-              border: 'none',
-              background: '#65DCD5',
-              color: '#0f172a',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 6px rgba(101, 220, 213, 0.25)',
-            }}
-            onClick={handleCreateCompanyModal}
-          >
-            <span>➕ Add Company</span>
-          </button> */}
           <div className="badge-stat badge-active">
             <span className="dot dot-active"></span>
             <span>TOTAL</span>
-            <strong>{totalCompanies} Companies</strong>
+            <strong>{counts.total} Companies</strong>
           </div>
-          {pendingCount > 0 && (
+          {counts.pending > 0 && (
             <div className="badge-stat badge-warning-stat">
               <span>PENDING</span>
-              <strong>{pendingCount}</strong>
+              <strong>{counts.pending}</strong>
             </div>
           )}
         </div>
@@ -314,16 +355,13 @@ export default function AdminCompaniesPage({
             {['all', 'pending', 'approved', 'suspended'].map((statusKey) => {
               const cfg = STATUS_CONFIG[statusKey]
               const isActive = companyFilter === statusKey
-              const count =
-                statusKey === 'all'
-                  ? companies.length
-                  : companies.filter((c) => (c.status || '').toLowerCase() === statusKey).length
+              const count = statusKey === 'all' ? counts.total : counts[statusKey] || 0
 
               return (
                 <button
                   key={statusKey}
                   type="button"
-                  onClick={() => setCompanyFilter(statusKey)}
+                  onClick={() => handleFilterChange(statusKey)}
                   style={{
                     fontFamily: 'inherit',
                     fontSize: '12px',
@@ -362,92 +400,54 @@ export default function AdminCompaniesPage({
           </div>
         </div>
 
-        {loadingCompanies ? (
+        {loading ? (
           <p className="page-message">Loading corporate directory from database...</p>
-        ) : filteredCompanies.length === 0 ? (
+        ) : companies.length === 0 ? (
           <div className="empty-state-box">
             <p>No companies found in database matching status criteria.</p>
           </div>
         ) : (
-          <div className="table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '20%' }}>COMPANY NAME</th>
-                  <th style={{ width: '26%' }}>EMAIL</th>
-                  <th style={{ width: '16%' }}>CATEGORY</th>
-                  <th style={{ width: '18%', paddingRight: '24px', whiteSpace: 'nowrap' }}>REGISTRATION DATE</th>
-                  <th style={{ width: '12%', paddingLeft: '24px', whiteSpace: 'nowrap' }}>STATUS</th>
-                  <th style={{ textAlign: 'center', width: '200px' }}>ACTIONS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCompanies.map((comp) => {
-                  const isPending = (comp.status || '').toLowerCase() === 'pending'
-                  const isApproved = (comp.status || '').toLowerCase() === 'approved'
-                  const isSuspended = (comp.status || '').toLowerCase() === 'suspended'
+          <>
+            <div className="table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '20%' }}>COMPANY NAME</th>
+                    <th style={{ width: '26%' }}>EMAIL</th>
+                    <th style={{ width: '16%' }}>CATEGORY</th>
+                    <th style={{ width: '18%', paddingRight: '24px', whiteSpace: 'nowrap' }}>REGISTRATION DATE</th>
+                    <th style={{ width: '12%', paddingLeft: '24px', whiteSpace: 'nowrap' }}>STATUS</th>
+                    <th style={{ textAlign: 'center', width: '200px' }}>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {companies.map((comp) => {
+                    const isPending = (comp.status || '').toLowerCase() === 'pending'
+                    const isApproved = (comp.status || '').toLowerCase() === 'approved'
+                    const isSuspended = (comp.status || '').toLowerCase() === 'suspended'
 
-                  return (
-                    <tr key={comp.id}>
-                      <td>
-                        <div className="user-table-cell">
-                          <span className="user-avatar-sm company-avatar">
-                            <FaBuilding />
+                    return (
+                      <tr key={comp.id}>
+                        <td>
+                          <div className="user-table-cell">
+                            <span className="user-avatar-sm company-avatar">
+                              <FaBuilding />
+                            </span>
+                            <strong className="user-display-name">{comp.name}</strong>
+                          </div>
+                        </td>
+                        <td className="email-col">{comp.email}</td>
+                        <td>{comp.category || 'Software & IT'}</td>
+                        <td style={{ paddingRight: '24px', whiteSpace: 'nowrap' }}>{formatDate(comp.createdAt || comp.registeredDate)}</td>
+                        <td style={{ paddingLeft: '24px' }}>
+                          <span
+                            className={`status-badge status-${(comp.status || 'pending').toLowerCase()}`}
+                          >
+                            {comp.status}
                           </span>
-                          <strong className="user-display-name">{comp.name}</strong>
-                        </div>
-                      </td>
-                      <td className="email-col">{comp.email}</td>
-                      <td>{comp.category || 'Software & IT'}</td>
-                      <td style={{ paddingRight: '24px', whiteSpace: 'nowrap' }}>{formatDate(comp.createdAt || comp.registeredDate)}</td>
-                      <td style={{ paddingLeft: '24px' }}>
-                        <span
-                          className={`status-badge status-${(comp.status || 'pending').toLowerCase()}`}
-                        >
-                          {comp.status}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
-                          <button
-                            type="button"
-                            style={{
-                              font: 'inherit',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              padding: '5px 10px',
-                              borderRadius: '6px',
-                              border: '1px solid rgba(59, 130, 246, 0.3)',
-                              background: 'rgba(59, 130, 246, 0.12)',
-                              color: '#3b82f6',
-                              cursor: 'pointer',
-                              whiteSpace: 'nowrap',
-                            }}
-                            onClick={() => handleViewCompany(comp)}
-                            title="View Company Details"
-                          >
-                            <FaEye /> View
-                          </button>
-                          <button
-                            type="button"
-                            style={{
-                              font: 'inherit',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              padding: '5px 10px',
-                              borderRadius: '6px',
-                              border: '1px solid rgba(20, 184, 166, 0.3)',
-                              background: 'rgba(20, 184, 166, 0.12)',
-                              color: '#14b8a6',
-                              cursor: 'pointer',
-                              whiteSpace: 'nowrap',
-                            }}
-                            onClick={() => handleEditCompany(comp)}
-                            title="Edit Company Details"
-                          >
-                            <FaPencilAlt /> Edit
-                          </button>
-                          {isPending ? (
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
                             <button
                               type="button"
                               style={{
@@ -456,18 +456,17 @@ export default function AdminCompaniesPage({
                                 fontWeight: '600',
                                 padding: '5px 10px',
                                 borderRadius: '6px',
-                                border: '1px solid rgba(239, 68, 68, 0.3)',
-                                background: 'rgba(239, 68, 68, 0.12)',
-                                color: '#ef4444',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                background: 'rgba(59, 130, 246, 0.12)',
+                                color: '#3b82f6',
                                 cursor: 'pointer',
                                 whiteSpace: 'nowrap',
                               }}
-                              onClick={() => onAttemptDelete(comp)}
-                              title="Delete Pending Company"
+                              onClick={() => handleViewCompany(comp)}
+                              title="View Company Details"
                             >
-                              <FaTrashAlt /> Delete
+                              <FaEye /> View
                             </button>
-                          ) : isApproved ? (
                             <button
                               type="button"
                               style={{
@@ -476,67 +475,117 @@ export default function AdminCompaniesPage({
                                 fontWeight: '600',
                                 padding: '5px 10px',
                                 borderRadius: '6px',
-                                border: '1px solid rgba(245, 158, 11, 0.4)',
-                                background: 'rgba(245, 158, 11, 0.12)',
-                                color: '#f59e0b',
+                                border: '1px solid rgba(20, 184, 166, 0.3)',
+                                background: 'rgba(20, 184, 166, 0.12)',
+                                color: '#14b8a6',
                                 cursor: 'pointer',
                                 whiteSpace: 'nowrap',
                               }}
-                              onClick={() => onSuspendCompany(comp)}
-                              title="Suspend Approved Company"
+                              onClick={() => handleEditCompany(comp)}
+                              title="Edit Company Details"
                             >
-                              <FaBan /> Suspend
+                              <FaPencilAlt /> Edit
                             </button>
-                          ) : isSuspended ? (
-                            <button
-                              type="button"
-                              style={{
-                                font: 'inherit',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                padding: '5px 10px',
-                                borderRadius: '6px',
-                                border: '1px solid rgba(16, 185, 129, 0.3)',
-                                background: 'rgba(16, 185, 129, 0.12)',
-                                color: '#10b981',
-                                cursor: 'pointer',
-                                whiteSpace: 'nowrap',
-                              }}
-                              onClick={() => onRestoreCompany(comp)}
-                              title="Restore Suspended Company"
-                            >
-                              <FaRecycle /> Restore
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              style={{
-                                font: 'inherit',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                padding: '5px 10px',
-                                borderRadius: '6px',
-                                border: '1px solid rgba(148, 163, 184, 0.2)',
-                                background: 'rgba(148, 163, 184, 0.08)',
-                                color: '#64748b',
-                                cursor: 'not-allowed',
-                                opacity: 0.45,
-                                whiteSpace: 'nowrap',
-                              }}
-                              onClick={() => onAttemptDelete(comp)}
-                              title="Only pending companies can be deleted"
-                            >
-                              <FaTrashAlt /> Delete
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                            {isPending ? (
+                              <button
+                                type="button"
+                                style={{
+                                  font: 'inherit',
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  padding: '5px 10px',
+                                  borderRadius: '6px',
+                                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  background: 'rgba(239, 68, 68, 0.12)',
+                                  color: '#ef4444',
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap',
+                                }}
+                                onClick={() => onAttemptDelete(comp)}
+                                title="Delete Pending Company"
+                              >
+                                <FaTrashAlt /> Delete
+                              </button>
+                            ) : isApproved ? (
+                              <button
+                                type="button"
+                                style={{
+                                  font: 'inherit',
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  padding: '5px 10px',
+                                  borderRadius: '6px',
+                                  border: '1px solid rgba(245, 158, 11, 0.4)',
+                                  background: 'rgba(245, 158, 11, 0.12)',
+                                  color: '#f59e0b',
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap',
+                                }}
+                                onClick={() => onSuspendCompany(comp)}
+                                title="Suspend Approved Company"
+                              >
+                                <FaBan /> Suspend
+                              </button>
+                            ) : isSuspended ? (
+                              <button
+                                type="button"
+                                style={{
+                                  font: 'inherit',
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  padding: '5px 10px',
+                                  borderRadius: '6px',
+                                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                                  background: 'rgba(16, 185, 129, 0.12)',
+                                  color: '#10b981',
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap',
+                                }}
+                                onClick={() => onRestoreCompany(comp)}
+                                title="Restore Suspended Company"
+                              >
+                                <FaRecycle /> Restore
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                style={{
+                                  font: 'inherit',
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  padding: '5px 10px',
+                                  borderRadius: '6px',
+                                  border: '1px solid rgba(148, 163, 184, 0.2)',
+                                  background: 'rgba(148, 163, 184, 0.08)',
+                                  color: '#64748b',
+                                  cursor: 'not-allowed',
+                                  opacity: 0.45,
+                                  whiteSpace: 'nowrap',
+                                }}
+                                onClick={() => onAttemptDelete(comp)}
+                                title="Only pending companies can be deleted"
+                              >
+                                <FaTrashAlt /> Delete
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              pageSize={pageSize}
+              onPageChange={setPage}
+              onPageSizeChange={handlePageSizeChange}
+            />
+          </>
         )}
       </div>
     </div>
