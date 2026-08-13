@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { applyForInternship, applyForJob, applyForProblem } from '../../api/customerapi'
+import { useAuth } from '../../context/useAuth'
 
 export default function ApplyButton({ itemId, itemType, hasApplied }) {
+  const { user } = useAuth()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -16,6 +18,16 @@ export default function ApplyButton({ itemId, itemType, hasApplied }) {
        setSelectedFile(file)
     } else {
        toast.error("Please upload a valid PDF document.")
+    }
+  }
+
+  const handleApplyClick = () => {
+    if (!user) {
+      toast.error("Please create an account or log in to submit your application.")
+      return
+    }
+    if (!isActuallyApplied) {
+      setIsModalOpen(true)
     }
   }
 
@@ -52,7 +64,7 @@ export default function ApplyButton({ itemId, itemType, hasApplied }) {
   return (
     <>
       <button 
-        onClick={() => !isActuallyApplied && setIsModalOpen(true)}
+        onClick={handleApplyClick}
         disabled={isActuallyApplied}
         style={{
           marginTop: 'auto',

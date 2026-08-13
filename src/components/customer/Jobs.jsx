@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getJobs, getAppliedRecord } from '../../api/customerapi'
 import ItemCard from './ItemCard'
+import AppliedJobs from './AppliedJobs'
 
 export default function Jobs() {
   const [jobs, setJobs] = useState([])
@@ -53,6 +54,11 @@ export default function Jobs() {
       ) : (
         <p>No jobs available at the moment.</p>
       )}
+
+      {/* Render the AppliedJobs component at the bottom of the Jobs tab */}
+      <hr style={{ margin: '3rem 0', borderColor: '#444' }} />
+      <AppliedJobs />
+
     </section>
   )
 }
