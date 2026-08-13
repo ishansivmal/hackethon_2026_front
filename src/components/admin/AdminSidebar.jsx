@@ -1,14 +1,18 @@
+import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
-export default function AdminSidebar({
-  users = [],
-  companies = [],
-  notifications = [],
-  currentUser,
-}) {
-  const pendingCompaniesCount = companies.filter(
-    (c) => c.status === 'Pending',
-  ).length
+export default function AdminSidebar({ currentUser }) {
+  const [avatarUrl, setAvatarUrl] = useState(() => {
+    return localStorage.getItem('admin_avatar_url') || currentUser?.avatarUrl || ''
+  })
+
+  useEffect(() => {
+    const handleAvatarChange = () => {
+      setAvatarUrl(localStorage.getItem('admin_avatar_url') || currentUser?.avatarUrl || '')
+    }
+    window.addEventListener('admin_avatar_changed', handleAvatarChange)
+    return () => window.removeEventListener('admin_avatar_changed', handleAvatarChange)
+  }, [currentUser])
 
   return (
     <aside className="admin-sidebar">
@@ -40,7 +44,6 @@ export default function AdminSidebar({
         >
           <span className="sidebar-icon">👥</span>
           <span>User Management</span>
-          <span className="sidebar-badge">{users.length}</span>
         </NavLink>
 
         <NavLink
@@ -51,21 +54,6 @@ export default function AdminSidebar({
         >
           <span className="sidebar-icon">🏢</span>
           <span>Company Management</span>
-          {pendingCompaniesCount > 0 && (
-            <span className="sidebar-badge badge-warning">
-              {pendingCompaniesCount}
-            </span>
-          )}
-        </NavLink>
-
-        <NavLink
-          to="/admin/reports"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? 'active' : ''}`
-          }
-        >
-          <span className="sidebar-icon">📈</span>
-          <span>Reports</span>
         </NavLink>
 
         <NavLink
@@ -76,14 +64,21 @@ export default function AdminSidebar({
         >
           <span className="sidebar-icon">🔔</span>
           <span>Notifications</span>
-          <span className="sidebar-badge">{notifications.length}</span>
         </NavLink>
       </nav>
 
       <div className="sidebar-footer">
         <div className="admin-profile-pill">
-          <span className="admin-avatar">
-            {currentUser?.name?.[0] || 'A'}
+          <span className="admin-avatar" style={{ overflow: 'hidden', padding: 0 }}>
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={currentUser?.name || 'Admin'}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+              />
+            ) : (
+              currentUser?.name?.[0] || 'A'
+            )}
           </span>
           <div className="admin-info">
             <span className="admin-name">{currentUser?.name}</span>
