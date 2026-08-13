@@ -13,3 +13,6 @@ export const deleteJob = (id) => api.delete(`/company/jobs/${id}`)
 export const postProblem = (data) => api.post('/company/problems', data)
 export const updateProblem = (id, data) => api.put(`/company/problems/${id}`, data)
 export const deleteProblem = (id) => api.delete(`/company/problems/${id}`)
+
+export const updateApplicationSelection = (type, id, isSelected) =>
+  api.put(`/company/applications/${type}/${id}`, { isSelected })
